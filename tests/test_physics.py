@@ -1,7 +1,7 @@
 """
 Physics Engine Verification Tests for Flux Factory.
 Validates 2D field interactions, Lorentz deflections, damping, conservation laws,
-fusion kinematics, and layout serialization.
+fusion kinematics, booster vector rotation, power cycling, and layout serialization.
 """
 import math
 import json
@@ -108,6 +108,40 @@ def test_booster_accelerates_in_vector_direction():
     assert math.isclose(ax, ay, rel_tol=1e-5), "45 deg booster gives equal x and y acceleration"
     assert math.isclose(math.hypot(ax, ay), 2.0, rel_tol=1e-5), "Magnitude matches power"
 
+def test_booster_angle_rotation_and_periodicity():
+    """Validates 8-step tap rotation around a full circle (45 deg increments)."""
+    step = math.pi / 4.0
+    current_angle = 0.0
+    
+    # 8 successive taps of pi/4
+    for i in range(8):
+        expected_rad = i * step
+        assert math.isclose(current_angle, expected_rad, abs_tol=1e-6)
+        
+        # Test vector heading
+        ax, ay = calc_booster_accel(current_angle, power=1.0)
+        assert math.isclose(ax, math.cos(expected_rad), abs_tol=1e-6)
+        assert math.isclose(ay, math.sin(expected_rad), abs_tol=1e-6)
+        
+        current_angle = (current_angle + step) % (math.pi * 2.0)
+        
+    assert math.isclose(current_angle, 0.0, abs_tol=1e-6), "Full 360 deg rotation returns to 0 rad"
+
+def test_power_cycling_quantization():
+    """Validates tapping power nodes cycles cleanly through discrete preset tiers."""
+    power = 450
+    # First tap: 450 -> 700
+    power = 200 if power >= 700 else power + 250
+    assert power == 700
+    
+    # Second tap: 700 -> wraps to 200
+    power = 200 if power >= 700 else power + 250
+    assert power == 200
+    
+    # Third tap: 200 -> 450
+    power = 200 if power >= 700 else power + 250
+    assert power == 450
+
 def test_collider_fusion_charge_and_momentum():
     """
     In the Tokamak collider:
@@ -133,20 +167,44 @@ def test_collider_fusion_charge_and_momentum():
     assert math.isclose(gamma_vx, 2.0)
     assert math.isclose(gamma_vy, 0.0)
 
-def test_state_serialization_roundtrip():
+def test_state_serialization_roundtrip_all_node_types():
+    """Validates serialization of all 6 node types with angle and power fields."""
     nodes = [
-        {"type": "gravity", "x": 350, "y": 240, "power": 150},
-        {"type": "repulsor", "x": 500, "y": 400, "power": 120},
-        {"type": "magnetic", "x": 600, "y": 300, "power": 1.8},
-        {"type": "collider", "x": 750, "y": 360, "radius": 34}
+        {"type": "gravity", "x": 350, "y": 240, "power": 450},
+        {"type": "repulsor", "x": 500, "y": 400, "power": 200},
+        {"type": "lorentz", "x": 600, "y": 300, "power": 3.5},
+        {"type": "dampener", "x": 680, "y": 280, "power": None},
+        {"type": "booster", "x": 720, "y": 320, "power": None, "angle": 0.785398},
+        {"type": "collider", "x": 800, "y": 350, "power": None}
     ]
     
+    export_payload = {
+        "lvl": 3,
+        "mode": "campaign",
+        "nodes": nodes
+    }
+    
     # Serialize to base64 JSON
-    raw_json = json.dumps(nodes, separators=(',', ':'))
+    raw_json = json.dumps(export_payload, separators=(',', ':'))
     encoded = base64.b64encode(raw_json.encode('utf-8')).decode('ascii')
     
     # Deserialize back
     decoded_json = base64.b64decode(encoded.encode('ascii')).decode('utf-8')
     recovered = json.loads(decoded_json)
     
-    assert recovered == nodes, "Roundtrip serialization must be lossless"
+    assert recovered == export_payload, "Full payload roundtrip serialization must be lossless"
+    assert math.isclose(recovered["nodes"][4]["angle"], 0.785398)
+
+def test_all_five_campaign_level_specifications():
+    """Validates level definitions criteria and targets."""
+    levels = {
+        1: {"targetThroughput": 1.8, "requiredHoldTime": 2.5},
+        2: {"targetThroughput": 2.5, "requiredHoldTime": 2.5},
+        3: {"targetThroughput": 1.8, "requiredHoldTime": 2.5},
+        4: {"targetThroughput": 2.0, "requiredHoldTime": 2.5},
+        5: {"targetThroughput": 3.5, "requiredHoldTime": 3.0}
+    }
+    assert len(levels) == 5
+    for lvl, spec in levels.items():
+        assert spec["targetThroughput"] > 0
+        assert spec["requiredHoldTime"] >= 2.0

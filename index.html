@@ -1152,62 +1152,94 @@ function render() {
     ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
 
     if (node.type === 'gravity') {
-      ctx.strokeStyle = 'var(--cyan)';
-      ctx.fillStyle = 'rgba(0,240,255,0.12)';
+      ctx.strokeStyle = '#00f0ff';
+      ctx.fillStyle = 'rgba(0,240,255,0.14)';
       ctx.lineWidth = 2;
       ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = 'rgba(0,240,255,0.3)';
+      ctx.strokeStyle = 'rgba(0,240,255,0.35)';
       ctx.beginPath();
       ctx.arc(node.x, node.y, (node.radius + (performance.now() / 25) % 80), 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = 'var(--cyan)';
+      ctx.fillStyle = '#00f0ff';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('引力井', node.x, node.y + 4);
+      ctx.fillText('引力井', node.x, node.y + 3);
+      if (node.power !== undefined) {
+        ctx.fillStyle = 'rgba(0,240,255,0.7)';
+        ctx.font = '9px monospace';
+        ctx.fillText(`P:${Math.round(node.power)}`, node.x, node.y + 15);
+      }
     } else if (node.type === 'repulsor') {
-      ctx.strokeStyle = 'var(--orange)';
-      ctx.fillStyle = 'rgba(255,136,0,0.12)';
+      ctx.strokeStyle = '#ff8800';
+      ctx.fillStyle = 'rgba(255,136,0,0.14)';
       ctx.lineWidth = 2;
       ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'var(--orange)';
+      ctx.fillStyle = '#ff8800';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('斥力场', node.x, node.y + 4);
+      ctx.fillText('斥力场', node.x, node.y + 3);
+      if (node.power !== undefined) {
+        ctx.fillStyle = 'rgba(255,136,0,0.7)';
+        ctx.font = '9px monospace';
+        ctx.fillText(`P:${Math.round(node.power)}`, node.x, node.y + 15);
+      }
     } else if (node.type === 'lorentz') {
-      ctx.strokeStyle = 'var(--blue)';
-      ctx.fillStyle = 'rgba(59,130,246,0.15)';
+      ctx.strokeStyle = '#3b82f6';
+      ctx.fillStyle = 'rgba(59,130,246,0.18)';
       ctx.lineWidth = 2.5;
       ctx.fill(); ctx.stroke();
       ctx.fillStyle = '#93c5fd';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('洛伦兹', node.x, node.y + 4);
+      ctx.fillText('洛伦兹', node.x, node.y + 3);
+      if (node.power !== undefined) {
+        ctx.fillStyle = 'rgba(147,197,253,0.7)';
+        ctx.font = '9px monospace';
+        ctx.fillText(`B:${node.power.toFixed(1)}`, node.x, node.y + 15);
+      }
     } else if (node.type === 'dampener') {
-      ctx.strokeStyle = 'var(--emerald)';
-      ctx.fillStyle = 'rgba(16,185,129,0.15)';
+      ctx.strokeStyle = '#10b981';
+      ctx.fillStyle = 'rgba(16,185,129,0.18)';
       ctx.lineWidth = 2;
       ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'var(--emerald)';
+      ctx.fillStyle = '#10b981';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('阻尼器', node.x, node.y + 4);
     } else if (node.type === 'booster') {
-      ctx.strokeStyle = '#a855f7';
-      ctx.fillStyle = 'rgba(168,85,247,0.15)';
+      ctx.strokeStyle = '#c084fc';
+      ctx.fillStyle = 'rgba(192,132,252,0.18)';
       ctx.lineWidth = 2;
       ctx.fill(); ctx.stroke();
       const angle = node.angle || 0;
+      const headlen = 7;
+      const tox = node.x + Math.cos(angle) * 15;
+      const toy = node.y + Math.sin(angle) * 15;
+      const fromx = node.x - Math.cos(angle) * 13;
+      const fromy = node.y - Math.sin(angle) * 13;
       ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(node.x - Math.cos(angle) * 12, node.y - Math.sin(angle) * 12);
-      ctx.lineTo(node.x + Math.cos(angle) * 14, node.y + Math.sin(angle) * 14);
+      ctx.moveTo(fromx, fromy);
+      ctx.lineTo(tox, toy);
+      ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+      ctx.moveTo(tox, toy);
+      ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
       ctx.stroke();
+      ctx.fillStyle = '#e9d5ff';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('加速轨', node.x, node.y - 10);
+      const deg = Math.round(((angle * 180 / Math.PI) % 360 + 360) % 360);
+      ctx.fillStyle = 'rgba(233,213,255,0.7)';
+      ctx.font = '9px monospace';
+      ctx.fillText(`${deg}°`, node.x, node.y + 15);
     } else if (node.type === 'collider') {
-      ctx.strokeStyle = 'var(--pink)';
-      ctx.fillStyle = 'rgba(236,72,153,0.18)';
+      ctx.strokeStyle = '#ec4899';
+      ctx.fillStyle = 'rgba(236,72,153,0.2)';
       ctx.lineWidth = 3;
       ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'var(--pink)';
+      ctx.fillStyle = '#ec4899';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('对撞环', node.x, node.y + 4);
@@ -1318,11 +1350,14 @@ viewport.addEventListener('pointermove', (e) => {
   }
 });
 
+let pointerDownTrack = { x: 0, y: 0, time: 0, node: null };
+
 viewport.addEventListener('pointerdown', (e) => {
   sound.init();
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
+  pointerDownTrack = { x, y, time: performance.now(), node: null };
 
   if (e.button === 2 || currentTool === 'demolish') {
     const idx = playerNodes.findIndex(n => Math.hypot(n.x - x, n.y - y) < n.radius + 12);
@@ -1333,9 +1368,10 @@ viewport.addEventListener('pointerdown', (e) => {
     return;
   }
 
-  const hitNode = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 8);
+  const hitNode = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 10);
   if (hitNode) {
     draggedNode = hitNode;
+    pointerDownTrack.node = hitNode;
     return;
   }
 
@@ -1364,7 +1400,30 @@ viewport.addEventListener('pointerdown', (e) => {
   }
 });
 
-window.addEventListener('pointerup', () => {
+window.addEventListener('pointerup', (e) => {
+  if (draggedNode && pointerDownTrack.node === draggedNode) {
+    const rect = canvas.getBoundingClientRect();
+    const curX = e.clientX - rect.left;
+    const curY = e.clientY - rect.top;
+    const moveDist = Math.hypot(curX - pointerDownTrack.x, curY - pointerDownTrack.y);
+    const duration = performance.now() - pointerDownTrack.time;
+
+    // Detect quick tap / click without drag (< 6px movement)
+    if (moveDist < 6 && duration < 400) {
+      if (draggedNode.type === 'booster') {
+        draggedNode.angle = ((draggedNode.angle || 0) + Math.PI / 4) % (Math.PI * 2);
+        sound.playTone(440, 0.08, 'triangle', 0.06);
+      } else if (draggedNode.power !== undefined) {
+        if (draggedNode.type === 'lorentz') {
+          draggedNode.power = (draggedNode.power >= 6.0) ? 1.5 : (draggedNode.power + 1.5);
+          sound.playTone(350 + draggedNode.power * 50, 0.08, 'sine', 0.05);
+        } else {
+          draggedNode.power = (draggedNode.power >= 700) ? 200 : (draggedNode.power + 250);
+          sound.playTone(300 + draggedNode.power * 0.4, 0.08, 'sine', 0.05);
+        }
+      }
+    }
+  }
   draggedNode = null;
 });
 
@@ -1375,8 +1434,17 @@ viewport.addEventListener('wheel', (e) => {
   const hit = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 15);
   if (hit) {
     e.preventDefault();
-    if (hit.power) {
-      hit.power = Math.max(50, Math.min(800, hit.power + (e.deltaY < 0 ? 25 : -25)));
+    if (hit.power !== undefined) {
+      if (hit.type === 'lorentz') {
+        hit.power = Math.max(0.5, Math.min(8.0, hit.power + (e.deltaY < 0 ? 0.5 : -0.5)));
+        sound.playTone(350 + hit.power * 40, 0.04, 'sine', 0.03);
+      } else {
+        hit.power = Math.max(50, Math.min(850, hit.power + (e.deltaY < 0 ? 25 : -25)));
+        sound.playTone(280 + hit.power * 0.4, 0.04, 'sine', 0.03);
+      }
+    } else if (hit.type === 'booster') {
+      hit.angle = ((hit.angle || 0) + (e.deltaY < 0 ? Math.PI / 8 : -Math.PI / 8)) % (Math.PI * 2);
+      sound.playTone(420, 0.04, 'triangle', 0.04);
     }
   }
 }, { passive: false });
@@ -1440,7 +1508,7 @@ document.getElementById('btn-share').addEventListener('click', () => {
   const exportData = {
     lvl: currentLevel,
     mode: currentMode,
-    nodes: playerNodes.map(n => ({ type: n.type, x: Math.round(n.x), y: Math.round(n.y), power: n.power }))
+    nodes: playerNodes.map(n => ({ type: n.type, x: Math.round(n.x), y: Math.round(n.y), power: n.power, angle: n.angle }))
   };
   const b64 = btoa(JSON.stringify(exportData));
   const shareUrl = `${window.location.origin}${window.location.pathname}#setup=${b64}`;
@@ -1480,7 +1548,7 @@ function loadFromHash() {
         else if (n.type === 'repulsor') { node.radius = 24; node.influenceR = 240; }
         else if (n.type === 'lorentz') { node.radius = 28; node.influenceR = 180; }
         else if (n.type === 'dampener') { node.radius = 26; node.influenceR = 140; }
-        else if (n.type === 'booster') { node.radius = 22; node.influenceR = 100; }
+        else if (n.type === 'booster') { node.radius = 22; node.influenceR = 100; node.angle = n.angle || 0; }
         else if (n.type === 'collider') { node.radius = 34; node.contained = []; }
         return node;
       });
