@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<title>Flux Factory · 通量工场 - 无轨物理场流体物流模拟器</title>
+<style>
+  :root {
+    --bg-dark: #07090e;
+    --panel-bg: rgba(13, 17, 27, 0.92);
+    --border-color: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --cyan: #00f0ff;
+    --orange: #ff8800;
+    --purple: #c084fc;
+    --emerald: #10b981;
+    --pink: #ec4899;
+    --blue: #3b82f6;
+    --red: #ef4444;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+  
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    background: var(--panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    font-size: 20px;
+    color: var(--cyan);
+    filter: drop-shadow(0 0 8px rgba(0,240,255,0.6));
+    animation: pulse-logo 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-logo {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  .title-group h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+  }
+
+  .title-group p {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Mode & Level Switcher */
+  .mode-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 3px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: #1e293b;
+    color: var(--cyan);
+    font-weight: 600;
+  }
+
+  .level-pills {
+    display: flex;
+    gap: 4px;
+    margin-left: 6px;
+    border-left: 1px solid var(--border-color);
+    padding-left: 6px;
+  }
+
+  .level-pill {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 11px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .level-pill:hover { border-color: var(--cyan); color: #fff; }
+  .level-pill.active { background: var(--cyan); color: #080a10; font-weight: bold; border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.4); }
+  .level-pill.passed::after {
+    content: "✓";
+    font-size: 8px;
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    color: var(--emerald);
+    background: #0f172a;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--emerald);
+  }
+
+  /* HUD Metrics */
+  .hud-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .stat-val {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #fff;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .action-btn {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action-btn:hover { background: #1e293b; color: #fff; border-color: #475569; }
+  .action-btn.active { background: rgba(0,240,255,0.15); color: var(--cyan); border-color: var(--cyan); }
+
+  /* Main Viewport */
+  #viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Target & Mission Banner (Floating) */
+  .mission-banner {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    background: rgba(13, 17, 27, 0.88);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    padding: 10px 14px;
+    max-width: 380px;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    transition: opacity 0.3s;
+  }
+
+  .mission-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mission-desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+
+  .goal-progress-wrap {
+    width: 100%;
+    height: 6px;
+    background: #1e293b;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .goal-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--emerald));
+    transition: width 0.2s ease-out;
+  }
+
+  .goal-text {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Floating Dock Toolbar */
+  .toolbar-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13, 17, 27, 0.94);
+    border: 1px solid #334155;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 40px;
+    padding: 6px 12px;
+    display: flex;
+    gap: 6px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    z-index: 25;
+    max-width: 95vw;
+    overflow-x: auto;
+  }
+
+  .tool-item {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #94a3b8;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .tool-item:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .tool-item.active {
+    color: #fff;
+    border-color: currentColor;
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 12px currentColor;
+  }
+
+  .tool-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .tool-item.gravity { color: var(--cyan); }
+  .tool-item.repulsor { color: var(--orange); }
+  .tool-item.lorentz { color: var(--blue); }
+  .tool-item.dampener { color: var(--emerald); }
+  .tool-item.booster { color: #a855f7; }
+  .tool-item.collider { color: var(--pink); }
+  .tool-item.demolish { color: var(--red); }
+
+  /* Notification Toast */
+  .toast {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--cyan);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    box-shadow: 0 4px 20px rgba(0,240,255,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 30;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Victory Dialog */
+  .dialog-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .dialog-card {
+    background: #0d111b;
+    border: 1px solid var(--cyan);
+    border-radius: 14px;
+    padding: 24px 30px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 35px rgba(0,240,255,0.35);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .dialog-card h2 {
+    font-size: 20px;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  .dialog-card p {
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .dialog-btn {
+    background: var(--cyan);
+    color: #080a10;
+    border: none;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dialog-btn:hover {
+    box-shadow: 0 0 16px rgba(0,240,255,0.7);
+    transform: translateY(-1px);
+  }
+
+  /* Quick Help Overlay */
+  .help-box {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    background: rgba(13, 17, 27, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 11px;
+    color: #94a3b8;
+    line-height: 1.6;
+    max-width: 280px;
+    display: none;
+    z-index: 20;
+  }
+  .help-box.show { display: block; }
+  .help-box strong { color: #fff; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-group">
+    <div class="logo-icon">◈</div>
+    <div class="title-group">
+      <h1>FLUX FACTORY <span>· 通量工场</span></h1>
+      <p>无轨物理场流体物流模拟器</p>
+    </div>
+  </div>
+
+  <div class="mode-nav">
+    <button class="mode-btn active" id="btn-mode-campaign">关卡战役</button>
+    <button class="mode-btn" id="btn-mode-sandbox">自由沙盒</button>
+    <div class="level-pills" id="level-pills">
+      <div class="level-pill active" data-lvl="1">1</div>
+      <div class="level-pill" data-lvl="2">2</div>
+      <div class="level-pill" data-lvl="3">3</div>
+      <div class="level-pill" data-lvl="4">4</div>
+      <div class="level-pill" data-lvl="5">5</div>
+    </div>
+  </div>
+
+  <div class="hud-stats">
+    <div class="stat-block">
+      <span class="stat-val" id="hud-particles">0</span>
+      <span class="stat-lbl">场内粒子</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-val" style="color:var(--pink)" id="hud-fused">0</span>
+      <span class="stat-lbl">聚变产额</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-val" style="color:var(--cyan)" id="hud-throughput">0.0 /s</span>
+      <span class="stat-lbl">交付吞吐率</span>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="action-btn" id="btn-toggle-vectors" title="切换力场矢量线 (V)">
+      <span>⚡ 力场流线</span>
+    </button>
+    <button class="action-btn" id="btn-toggle-sound" title="音效开关 (M)">
+      <span id="sound-icon">🔊 声音</span>
+    </button>
+    <button class="action-btn" id="btn-share" title="复制当前布局分享链接">
+      <span>🔗 分享</span>
+    </button>
+    <button class="action-btn" id="btn-reset" title="重置本关布局 (R)">
+      <span>↺ 重置</span>
+    </button>
+    <button class="action-btn" id="btn-help" title="玩法帮助 (?)">
+      <span>?</span>
+    </button>
+  </div>
+</header>
+
+<div id="viewport">
+  <div class="mission-banner" id="mission-banner">
+    <div class="mission-title" id="m-title">◈ 第 1 关：引力弹弓</div>
+    <div class="mission-desc" id="m-desc">使用引力井在发射源与货舱间构建中继弯轨，避开中央屏障，将粒子流安全导入货舱。</div>
+    <div class="goal-progress-wrap">
+      <div class="goal-progress-bar" id="goal-progress"></div>
+    </div>
+    <div class="goal-text">
+      <span id="goal-target-lbl">目标: 1.8 /s 维持 2.5 秒</span>
+      <span id="goal-time-lbl">0.0s / 2.5s</span>
+    </div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="help-box" id="help-box">
+    <strong>💡 快捷交互指引：</strong><br>
+    • <strong>左键点击</strong>：在光标处部署选定场节点。<br>
+    • <strong>拖拽已有节点</strong>：微调空间物理位置。<br>
+    • <strong>滚轮滑动</strong>：在节点上滚动可调节力场功率！<br>
+    • <strong>右键点击</strong>：快速拆除指定节点。<br>
+    • <strong>键盘快捷键</strong>：1~6 选择工具，X 拆除，V 切换矢量场，M 静音，R 重置。
+  </div>
+
+  <div class="toast" id="toast">已复制分享链接至剪贴板</div>
+</div>
+
+<div class="toolbar-container">
+  <button class="tool-item gravity active" data-tool="gravity">
+    <span class="tool-dot" style="background:var(--cyan)"></span>
+    <span>引力井 (1)</span>
+  </button>
+  <button class="tool-item repulsor" data-tool="repulsor">
+    <span class="tool-dot" style="background:var(--orange)"></span>
+    <span>斥力场 (2)</span>
+  </button>
+  <button class="tool-item lorentz" data-tool="lorentz">
+    <span class="tool-dot" style="background:var(--blue)"></span>
+    <span>洛伦兹环 (3)</span>
+  </button>
+  <button class="tool-item dampener" data-tool="dampener">
+    <span class="tool-dot" style="background:var(--emerald)"></span>
+    <span>阻尼线圈 (4)</span>
+  </button>
+  <button class="tool-item booster" data-tool="booster">
+    <span class="tool-dot" style="background:#a855f7"></span>
+    <span>加速导轨 (5)</span>
+  </button>
+  <button class="tool-item collider" data-tool="collider">
+    <span class="tool-dot" style="background:var(--pink)"></span>
+    <span>对撞加工环 (6)</span>
+  </button>
+  <button class="tool-item demolish" data-tool="demolish">
+    <span class="tool-dot" style="background:var(--red)"></span>
+    <span>拆除 (X)</span>
+  </button>
+</div>
+
+<!-- Victory Dialog -->
+<div class="dialog-overlay" id="victory-modal">
+  <div class="dialog-card">
+    <h2 id="vic-title">🎉 关卡达成！</h2>
+    <p id="vic-desc">物理场架构运行极为流畅，成功维持稳定高速交付！</p>
+    <button class="dialog-btn" id="btn-next-level">进入下一关</button>
+  </div>
+</div>
+
+<script>
+// --- Web Audio Synthesizer Engine ---
+class SoundEngine {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+  }
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+  toggle() {
+    this.muted = !this.muted;
+    return !this.muted;
+  }
+  playTone(freq, duration = 0.12, type = 'sine', gainVal = 0.08) {
+    if (this.muted || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    } catch(e) {}
+  }
+  playCollect() {
+    this.playTone(880, 0.15, 'sine', 0.1);
+  }
+  playFusion() {
+    this.playTone(523.25, 0.25, 'triangle', 0.12);
+    setTimeout(() => this.playTone(659.25, 0.25, 'sine', 0.1), 40);
+  }
+  playPlace() {
+    this.playTone(320, 0.08, 'square', 0.04);
+  }
+  playDelete() {
+    this.playTone(180, 0.1, 'sawtooth', 0.04);
+  }
+}
+const sound = new SoundEngine();
+
+// --- Canvas & Simulation State ---
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const viewport = document.getElementById('viewport');
+
+let W = 0, H = 0;
+let currentMode = 'campaign';
+let currentLevel = 1;
+let currentTool = 'gravity';
+let showVectors = false;
+
+// Physics Objects
+let particles = [];
+let playerNodes = [];
+let staticEmitters = [];
+let staticCollectors = [];
+let obstacles = [];
+let shockwaves = [];
+
+// Cursor & Interaction State
+let mousePos = { x: -100, y: -100, inside: false };
+let draggedNode = null;
+let hoveredNode = null;
+
+// Expose globally for testing/auditing
+window.gameState = {
+  get playerNodes() { return playerNodes; },
+  get staticEmitters() { return staticEmitters; },
+  get staticCollectors() { return staticCollectors; },
+  get particles() { return particles; },
+  get currentLevel() { return currentLevel; },
+  get currentMode() { return currentMode; }
+};
+
+// Metrics & Goal Tracking
+let totalFused = 0;
+let collectedTimestamps = [];
+let sustainedGoalTime = 0;
+let lastFrameTime = performance.now();
+
+const MAX_PARTICLES = 1400;
+
+// Level Definitions
+const LEVELS = {
+  1: {
+    title: "◈ 第 1 关：引力弹弓",
+    desc: "使用引力井在发射源与货舱间构建中继弯轨，避开中央屏障，将粒子流安全导入货舱。",
+    targetThroughput: 1.8,
+    requiredHoldTime: 2.5,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.55, radius: 24, type: 'alpha', angle: 0.0, rate: 2, color: '#00f0ff' }
+      ];
+      staticCollectors = [
+        { x: w - 120, y: h * 0.25, radius: 44, target: 'alpha', color: '#00f0ff', label: 'α 货舱' }
+      ];
+      obstacles = [
+        { x: w * 0.45, y: h * 0.4, w: 45, h: h * 0.35, color: '#334155' }
+      ];
+    }
+  },
+  2: {
+    title: "◈ 第 2 关：洛伦兹电荷分离",
+    desc: "中央发射混杂束(α正/β负)。在途中放置洛伦兹环，利用正负电荷相反偏转分别分流至上下双仓！",
+    targetThroughput: 2.5,
+    requiredHoldTime: 2.5,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.5, radius: 24, type: 'mixed', angle: 0.0, rate: 3, color: '#fff' }
+      ];
+      staticCollectors = [
+        { x: w - 120, y: h * 0.2, radius: 42, target: 'alpha', color: '#00f0ff', label: 'α 仓(+)' },
+        { x: w - 120, y: h * 0.8, radius: 42, target: 'beta', color: '#ff8800', label: 'β 仓(-)' }
+      ];
+      obstacles = [
+        { x: w * 0.6, y: h * 0.45, w: 100, h: h * 0.1, color: '#334155' }
+      ];
+    }
+  },
+  3: {
+    title: "◈ 第 3 关：托卡马克聚变",
+    desc: "将上下两路α与β束导引至中央对撞环，合成中性紫色等离子(γ)，并送入右侧终点货舱。",
+    targetThroughput: 1.8,
+    requiredHoldTime: 2.5,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.25, radius: 24, type: 'alpha', angle: 0.1, rate: 2, color: '#00f0ff' },
+        { x: 80, y: h * 0.75, radius: 24, type: 'beta', angle: -0.1, rate: 2, color: '#ff8800' }
+      ];
+      staticCollectors = [
+        { x: w - 100, y: h * 0.5, radius: 44, target: 'gamma', color: '#c084fc', label: 'γ 聚变舱' }
+      ];
+      obstacles = [];
+    }
+  },
+  4: {
+    title: "◈ 第 4 关：减速与入港",
+    desc: "高速超流发射束！若不减速会导致粒子冲出货舱。在货舱前架设阻尼线圈吸收多余动能。",
+    targetThroughput: 2.0,
+    requiredHoldTime: 2.5,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.3, radius: 24, type: 'alpha', angle: 0.15, rate: 3, speedMod: 1.6, color: '#00f0ff' }
+      ];
+      staticCollectors = [
+        { x: w - 120, y: h * 0.7, radius: 40, target: 'alpha', color: '#00f0ff', label: 'α 泊位' }
+      ];
+      obstacles = [
+        { x: w * 0.5, y: h * 0.1, w: 30, h: h * 0.6, color: '#334155' }
+      ];
+    }
+  },
+  5: {
+    title: "◈ 第 5 关：谐振母港大挑战",
+    desc: "多源产线综合调度！制造高纯度γ等离子，达成持续稳定的 3.5/s 高通量输送！",
+    targetThroughput: 3.5,
+    requiredHoldTime: 3.0,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.2, radius: 24, type: 'alpha', angle: 0.1, rate: 3, color: '#00f0ff' },
+        { x: 80, y: h * 0.8, radius: 24, type: 'beta', angle: -0.1, rate: 3, color: '#ff8800' }
+      ];
+      staticCollectors = [
+        { x: w - 90, y: h * 0.5, radius: 48, target: 'gamma', color: '#c084fc', label: '中央母港' }
+      ];
+      obstacles = [
+        { x: w * 0.35, y: h * 0.4, w: 50, h: h * 0.2, color: '#334155' },
+        { x: w * 0.7, y: h * 0.25, w: 30, h: h * 0.5, color: '#334155' }
+      ];
+    }
+  }
+};
+
+// Particle Class
+class Particle {
+  constructor(x, y, vx, vy, type) {
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.vy = vy;
+    this.type = type;
+    this.charge = (type === 'alpha') ? 1.0 : (type === 'beta') ? -1.0 : 0.0;
+    this.life = 0;
+    this.maxLife = 700;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life++;
+  }
+  draw(c) {
+    c.save();
+    let col = '#00f0ff';
+    let rad = 2.5;
+    if (this.type === 'beta') { col = '#ff9900'; rad = 2.5; }
+    else if (this.type === 'gamma') { col = '#c084fc'; rad = 3.8; }
+
+    c.fillStyle = col;
+    c.shadowColor = col;
+    c.shadowBlur = (this.type === 'gamma') ? 8 : 4;
+    c.beginPath();
+    c.arc(this.x, this.y, rad, 0, Math.PI * 2);
+    c.fill();
+    c.restore();
+  }
+}
+
+// Shockwave Effect
+class Shockwave {
+  constructor(x, y, color = '#ec4899') {
+    this.x = x;
+    this.y = y;
+    this.radius = 6;
+    this.maxRadius = 60;
+    this.alpha = 1.0;
+    this.color = color;
+  }
+  update() {
+    this.radius += 2.5;
+    this.alpha -= 0.04;
+  }
+  draw(c) {
+    if (this.alpha <= 0) return;
+    c.save();
+    c.strokeStyle = this.color;
+    c.globalAlpha = Math.max(0, this.alpha);
+    c.lineWidth = 2.5;
+    c.beginPath();
+    c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    c.stroke();
+    c.restore();
+  }
+}
+
+// Resize & Initialization
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  W = viewport.clientWidth;
+  H = viewport.clientHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+  loadLevel(currentLevel);
+  loadFromHash();
+}
+window.addEventListener('resize', resize);
+
+function loadLevel(lvl) {
+  currentLevel = lvl;
+  particles = [];
+  playerNodes = [];
+  shockwaves = [];
+  collectedTimestamps = [];
+  sustainedGoalTime = 0;
+  totalFused = 0;
+
+  if (currentMode === 'campaign') {
+    const def = LEVELS[lvl];
+    document.getElementById('m-title').textContent = def.title;
+    document.getElementById('m-desc').textContent = def.desc;
+    document.getElementById('goal-target-lbl').textContent = `目标: ${def.targetThroughput.toFixed(1)} /s 维持 ${def.requiredHoldTime} 秒`;
+    document.getElementById('mission-banner').style.display = 'block';
+    def.setup(W, H);
+  } else {
+    document.getElementById('m-title').textContent = "◈ 自由沙盒模式";
+    document.getElementById('m-desc').textContent = "任意搭建物理场设施，构建自己的高通量粒子回旋产线。";
+    document.getElementById('goal-target-lbl').textContent = "无通关限制";
+    document.getElementById('goal-time-lbl').textContent = "--";
+    document.getElementById('goal-progress').style.width = '100%';
+    staticEmitters = [
+      { x: 80, y: H * 0.3, radius: 24, type: 'alpha', angle: 0.1, rate: 2, color: '#00f0ff' },
+      { x: 80, y: H * 0.7, radius: 24, type: 'beta', angle: -0.1, rate: 2, color: '#ff8800' }
+    ];
+    staticCollectors = [
+      { x: W - 100, y: H * 0.5, radius: 44, target: 'gamma', color: '#c084fc', label: 'γ 货舱' }
+    ];
+    obstacles = [];
+  }
+
+  // Update level pills
+  document.querySelectorAll('.level-pill').forEach(pill => {
+    pill.classList.toggle('active', parseInt(pill.dataset.lvl) === lvl);
+  });
+}
+
+// Spawning Particles
+let spawnCounter = 0;
+function spawnParticles() {
+  spawnCounter++;
+  for (let em of staticEmitters) {
+    if (particles.length >= MAX_PARTICLES) break;
+    const rate = em.rate || 2;
+    for (let i = 0; i < rate; i++) {
+      let pType = em.type;
+      if (pType === 'mixed') {
+        pType = (spawnCounter % 2 === 0) ? 'alpha' : 'beta';
+      }
+      const spread = (Math.random() - 0.5) * 0.14;
+      const speed = (2.8 + Math.random() * 0.4) * (em.speedMod || 1.0);
+      const vx = Math.cos(em.angle + spread) * speed;
+      const vy = Math.sin(em.angle + spread) * speed;
+      particles.push(new Particle(em.x + 22, em.y + (Math.random() - 0.5) * 8, vx, vy, pType));
+    }
+  }
+}
+
+// Physics Loop
+function updatePhysics(dt) {
+  spawnParticles();
+  const now = performance.now();
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+
+    // Interaction with Player Field Nodes
+    for (let node of playerNodes) {
+      const dx = node.x - p.x;
+      const dy = node.y - p.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (node.type === 'gravity') {
+        const influenceR = node.influenceR || 320;
+        if (dist > 1 && dist < influenceR) {
+          const factor = (node.power || 450) / (dist * dist + 400.0);
+          p.vx += (dx / dist) * factor;
+          p.vy += (dy / dist) * factor;
+        }
+      } else if (node.type === 'repulsor') {
+        const influenceR = node.influenceR || 240;
+        if (dist > 1 && dist < influenceR) {
+          const factor = (node.power || 450) / (dist * dist + 200.0);
+          p.vx -= (dx / dist) * factor;
+          p.vy -= (dy / dist) * factor;
+        }
+      } else if (node.type === 'lorentz') {
+        const influenceR = node.influenceR || 180;
+        if (dist > 1 && dist < influenceR) {
+          const falloff = (1.0 - dist / influenceR);
+          const effectiveB = (node.power || 3.5) * 0.05 * falloff;
+          const ax = p.charge * p.vy * effectiveB;
+          const ay = -p.charge * p.vx * effectiveB;
+          p.vx += ax;
+          p.vy += ay;
+        }
+      } else if (node.type === 'dampener') {
+        const influenceR = node.influenceR || 140;
+        if (dist < influenceR) {
+          const damp = 0.06;
+          p.vx *= (1 - damp);
+          p.vy *= (1 - damp);
+        }
+      } else if (node.type === 'booster') {
+        const influenceR = node.influenceR || 100;
+        if (dist < influenceR) {
+          const angle = node.angle || 0;
+          p.vx += Math.cos(angle) * 0.45;
+          p.vy += Math.sin(angle) * 0.45;
+        }
+      } else if (node.type === 'collider') {
+        if (dist < node.radius) {
+          if (!node.contained) node.contained = [];
+          node.contained.push(p);
+          particles.splice(i, 1);
+
+          const alphaIdx = node.contained.findIndex(x => x.type === 'alpha');
+          const betaIdx = node.contained.findIndex(x => x.type === 'beta');
+
+          if (alphaIdx !== -1 && betaIdx !== -1) {
+            const pA = node.contained[alphaIdx];
+            const pB = node.contained[betaIdx];
+            node.contained = node.contained.filter((_, idx) => idx !== alphaIdx && idx !== betaIdx);
+
+            totalFused++;
+            sound.playFusion();
+            shockwaves.push(new Shockwave(node.x, node.y, '#ec4899'));
+
+            const outAngle = Math.atan2(pA.vy + pB.vy, pA.vx + pB.vx) || (Math.random() * Math.PI * 2);
+            const speed = 3.6;
+            const gamma = new Particle(
+              node.x + Math.cos(outAngle) * (node.radius + 6),
+              node.y + Math.sin(outAngle) * (node.radius + 6),
+              Math.cos(outAngle) * speed,
+              Math.sin(outAngle) * speed,
+              'gamma'
+            );
+            particles.push(gamma);
+          }
+          break;
+        }
+      }
+    }
+
+    if (!particles[i]) continue;
+
+    // Obstacle Collisions
+    for (let obs of obstacles) {
+      if (p.x >= obs.x && p.x <= obs.x + obs.w && p.y >= obs.y && p.y <= obs.y + obs.h) {
+        particles.splice(i, 1);
+        break;
+      }
+    }
+
+    if (!particles[i]) continue;
+
+    // Collector Delivery Check
+    for (let col of staticCollectors) {
+      const d = Math.hypot(col.x - p.x, col.y - p.y);
+      if (d < 140 && (col.target === p.type || col.target === 'any')) {
+        const suction = (1.0 - d / 140) * 0.85;
+        p.vx += ((col.x - p.x) / d) * suction;
+        p.vy += ((col.y - p.y) / d) * suction;
+      }
+      if (d < col.radius && (col.target === p.type || col.target === 'any')) {
+        collectedTimestamps.push(now);
+        sound.playCollect();
+        particles.splice(i, 1);
+        break;
+      }
+    }
+
+    if (!particles[i]) continue;
+
+    // Clamping max speed
+    const spd = Math.hypot(p.vx, p.vy);
+    if (spd > 7.5) {
+      p.vx = (p.vx / spd) * 7.5;
+      p.vy = (p.vy / spd) * 7.5;
+    }
+
+    p.update();
+
+    if (p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20 || p.life > p.maxLife) {
+      particles.splice(i, 1);
+    }
+  }
+
+  // Update Shockwaves
+  for (let k = shockwaves.length - 1; k >= 0; k--) {
+    shockwaves[k].update();
+    if (shockwaves[k].alpha <= 0) shockwaves.splice(k, 1);
+  }
+
+  // Throughput Calculation
+  const windowTime = now - 3000;
+  collectedTimestamps = collectedTimestamps.filter(t => t > windowTime);
+  const throughput = collectedTimestamps.length / 3.0;
+
+  // Update HUD
+  document.getElementById('hud-particles').textContent = particles.length;
+  document.getElementById('hud-fused').textContent = totalFused;
+  document.getElementById('hud-throughput').textContent = `${throughput.toFixed(1)} /s`;
+
+  // Goal & Victory Checks
+  if (currentMode === 'campaign') {
+    const def = LEVELS[currentLevel];
+    if (throughput >= def.targetThroughput) {
+      sustainedGoalTime += dt;
+      if (sustainedGoalTime >= def.requiredHoldTime) {
+        triggerVictory();
+      }
+    } else {
+      sustainedGoalTime = Math.max(0, sustainedGoalTime - dt * 0.7);
+    }
+    const pct = Math.min(100, (sustainedGoalTime / def.requiredHoldTime) * 100);
+    document.getElementById('goal-progress').style.width = `${pct}%`;
+    document.getElementById('goal-time-lbl').textContent = `${sustainedGoalTime.toFixed(1)}s / ${def.requiredHoldTime}s`;
+  }
+}
+
+// Victory Handler
+function triggerVictory() {
+  const modal = document.getElementById('victory-modal');
+  modal.style.display = 'flex';
+  document.getElementById('vic-title').textContent = `🎉 第 ${currentLevel} 关圆满达成！`;
+  document.getElementById('vic-desc').textContent = `物理场架构运行极为流畅，成功维持稳定高速交付！`;
+  const pill = document.querySelector(`.level-pill[data-lvl="${currentLevel}"]`);
+  if (pill) pill.classList.add('passed');
+}
+
+document.getElementById('btn-next-level').addEventListener('click', () => {
+  document.getElementById('victory-modal').style.display = 'none';
+  if (currentLevel < 5) {
+    loadLevel(currentLevel + 1);
+  } else {
+    currentMode = 'sandbox';
+    document.getElementById('btn-mode-campaign').classList.remove('active');
+    document.getElementById('btn-mode-sandbox').classList.add('active');
+    loadLevel(1);
+  }
+});
+
+// Render Loop
+function render() {
+  ctx.fillStyle = 'rgba(7, 9, 14, 0.35)';
+  ctx.fillRect(0, 0, W, H);
+
+  if (showVectors) {
+    drawVectorField();
+  }
+
+  // Draw Obstacles
+  for (let obs of obstacles) {
+    ctx.save();
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+    ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
+    ctx.strokeStyle = '#334155';
+    ctx.beginPath();
+    for (let lx = obs.x; lx < obs.x + obs.w + obs.h; lx += 14) {
+      ctx.moveTo(lx, obs.y);
+      ctx.lineTo(lx - obs.h, obs.y + obs.h);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Static Emitters
+  for (let em of staticEmitters) {
+    ctx.save();
+    ctx.strokeStyle = em.color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(em.x, em.y, em.radius, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = em.color + '1a';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(em.x, em.y);
+    ctx.lineTo(em.x + Math.cos(em.angle) * (em.radius + 12), em.y + Math.sin(em.angle) * (em.radius + 12));
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(em.type.toUpperCase(), em.x, em.y + 3);
+    ctx.restore();
+  }
+
+  // Draw Static Collectors with Suction Aura
+  for (let col of staticCollectors) {
+    ctx.save();
+    ctx.strokeStyle = col.color + '33';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    ctx.arc(col.x, col.y, 140, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = col.color;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([6, 4]);
+    const rot = (performance.now() / 600) % (Math.PI * 2);
+    ctx.beginPath();
+    ctx.arc(col.x, col.y, col.radius + 4, rot, rot + Math.PI * 1.8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = col.color + '1f';
+    ctx.beginPath();
+    ctx.arc(col.x, col.y, col.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(col.label || '货舱', col.x, col.y + 4);
+    ctx.restore();
+  }
+
+  // Draw Player Field Nodes
+  for (let node of playerNodes) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+
+    if (node.type === 'gravity') {
+      ctx.strokeStyle = 'var(--cyan)';
+      ctx.fillStyle = 'rgba(0,240,255,0.12)';
+      ctx.lineWidth = 2;
+      ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,240,255,0.3)';
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, (node.radius + (performance.now() / 25) % 80), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'var(--cyan)';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('引力井', node.x, node.y + 4);
+    } else if (node.type === 'repulsor') {
+      ctx.strokeStyle = 'var(--orange)';
+      ctx.fillStyle = 'rgba(255,136,0,0.12)';
+      ctx.lineWidth = 2;
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'var(--orange)';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('斥力场', node.x, node.y + 4);
+    } else if (node.type === 'lorentz') {
+      ctx.strokeStyle = 'var(--blue)';
+      ctx.fillStyle = 'rgba(59,130,246,0.15)';
+      ctx.lineWidth = 2.5;
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#93c5fd';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('洛伦兹', node.x, node.y + 4);
+    } else if (node.type === 'dampener') {
+      ctx.strokeStyle = 'var(--emerald)';
+      ctx.fillStyle = 'rgba(16,185,129,0.15)';
+      ctx.lineWidth = 2;
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'var(--emerald)';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('阻尼器', node.x, node.y + 4);
+    } else if (node.type === 'booster') {
+      ctx.strokeStyle = '#a855f7';
+      ctx.fillStyle = 'rgba(168,85,247,0.15)';
+      ctx.lineWidth = 2;
+      ctx.fill(); ctx.stroke();
+      const angle = node.angle || 0;
+      ctx.strokeStyle = '#c084fc';
+      ctx.beginPath();
+      ctx.moveTo(node.x - Math.cos(angle) * 12, node.y - Math.sin(angle) * 12);
+      ctx.lineTo(node.x + Math.cos(angle) * 14, node.y + Math.sin(angle) * 14);
+      ctx.stroke();
+    } else if (node.type === 'collider') {
+      ctx.strokeStyle = 'var(--pink)';
+      ctx.fillStyle = 'rgba(236,72,153,0.18)';
+      ctx.lineWidth = 3;
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'var(--pink)';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('对撞环', node.x, node.y + 4);
+    }
+    ctx.restore();
+  }
+
+  // Draw Cursor Placement Preview
+  if (mousePos.inside && currentTool !== 'demolish' && !draggedNode) {
+    ctx.save();
+    let prevColor = 'rgba(0, 240, 255, 0.4)';
+    let prevR = 320;
+    if (currentTool === 'repulsor') { prevColor = 'rgba(255, 136, 0, 0.4)'; prevR = 240; }
+    else if (currentTool === 'lorentz') { prevColor = 'rgba(59, 130, 246, 0.4)'; prevR = 180; }
+    else if (currentTool === 'dampener') { prevColor = 'rgba(16, 185, 129, 0.4)'; prevR = 140; }
+    else if (currentTool === 'collider') { prevColor = 'rgba(236, 72, 153, 0.4)'; prevR = 34; }
+
+    ctx.strokeStyle = prevColor;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.arc(mousePos.x, mousePos.y, prevR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(mousePos.x, mousePos.y, 24, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Particles
+  for (let p of particles) {
+    p.draw(ctx);
+  }
+
+  // Draw Shockwaves
+  for (let s of shockwaves) {
+    s.draw(ctx);
+  }
+}
+
+// Vector Field Visualizer
+function drawVectorField() {
+  const step = 45;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0, 240, 255, 0.15)';
+  ctx.fillStyle = 'rgba(0, 240, 255, 0.2)';
+  ctx.lineWidth = 1;
+
+  for (let x = 30; x < W; x += step) {
+    for (let y = 30; y < H; y += step) {
+      let fx = 0, fy = 0;
+      for (let n of playerNodes) {
+        const dx = n.x - x;
+        const dy = n.y - y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 1) continue;
+
+        if (n.type === 'gravity' && dist < (n.influenceR || 320)) {
+          const f = (n.power || 450) / (dist * dist + 400.0);
+          fx += (dx / dist) * f;
+          fy += (dy / dist) * f;
+        } else if (n.type === 'repulsor' && dist < (n.influenceR || 240)) {
+          const f = (n.power || 450) / (dist * dist + 200.0);
+          fx -= (dx / dist) * f;
+          fy -= (dy / dist) * f;
+        }
+      }
+      const len = Math.hypot(fx, fy);
+      if (len > 0.05) {
+        const angle = Math.atan2(fy, fx);
+        const drawLen = Math.min(18, len * 15);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(angle) * drawLen, y + Math.sin(angle) * drawLen);
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.restore();
+}
+
+// Main Animation Loop
+function loop(timestamp) {
+  const dt = Math.min(0.05, (timestamp - lastFrameTime) / 1000);
+  lastFrameTime = timestamp;
+
+  updatePhysics(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// Pointer & Interaction Handling
+viewport.addEventListener('pointerenter', () => mousePos.inside = true);
+viewport.addEventListener('pointerleave', () => {
+  mousePos.inside = false;
+  draggedNode = null;
+});
+
+viewport.addEventListener('pointermove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mousePos.x = e.clientX - rect.left;
+  mousePos.y = e.clientY - rect.top;
+  mousePos.inside = true;
+
+  if (draggedNode) {
+    draggedNode.x = mousePos.x;
+    draggedNode.y = mousePos.y;
+  }
+});
+
+viewport.addEventListener('pointerdown', (e) => {
+  sound.init();
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  if (e.button === 2 || currentTool === 'demolish') {
+    const idx = playerNodes.findIndex(n => Math.hypot(n.x - x, n.y - y) < n.radius + 12);
+    if (idx !== -1) {
+      playerNodes.splice(idx, 1);
+      sound.playDelete();
+    }
+    return;
+  }
+
+  const hitNode = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 8);
+  if (hitNode) {
+    draggedNode = hitNode;
+    return;
+  }
+
+  for (let s of [...staticEmitters, ...staticCollectors]) {
+    if (Math.hypot(s.x - x, s.y - y) < s.radius + 30) return;
+  }
+
+  let newNode = null;
+  if (currentTool === 'gravity') {
+    newNode = { type: 'gravity', x, y, radius: 24, power: 450, influenceR: 320 };
+  } else if (currentTool === 'repulsor') {
+    newNode = { type: 'repulsor', x, y, radius: 24, power: 450, influenceR: 240 };
+  } else if (currentTool === 'lorentz') {
+    newNode = { type: 'lorentz', x, y, radius: 28, power: 3.5, influenceR: 180 };
+  } else if (currentTool === 'dampener') {
+    newNode = { type: 'dampener', x, y, radius: 26, influenceR: 140 };
+  } else if (currentTool === 'booster') {
+    newNode = { type: 'booster', x, y, radius: 22, angle: 0, influenceR: 100 };
+  } else if (currentTool === 'collider') {
+    newNode = { type: 'collider', x, y, radius: 34, contained: [] };
+  }
+
+  if (newNode) {
+    playerNodes.push(newNode);
+    sound.playPlace();
+  }
+});
+
+window.addEventListener('pointerup', () => {
+  draggedNode = null;
+});
+
+viewport.addEventListener('wheel', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const hit = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 15);
+  if (hit) {
+    e.preventDefault();
+    if (hit.power) {
+      hit.power = Math.max(50, Math.min(800, hit.power + (e.deltaY < 0 ? 25 : -25)));
+    }
+  }
+}, { passive: false });
+
+viewport.addEventListener('contextmenu', e => e.preventDefault());
+
+// Toolbar Buttons
+document.querySelectorAll('.tool-item[data-tool]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tool-item[data-tool]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTool = btn.dataset.tool;
+  });
+});
+
+// Level Navigation
+document.querySelectorAll('.level-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    loadLevel(parseInt(pill.dataset.lvl));
+  });
+});
+
+document.getElementById('btn-mode-campaign').addEventListener('click', () => {
+  currentMode = 'campaign';
+  document.getElementById('btn-mode-campaign').classList.add('active');
+  document.getElementById('btn-mode-sandbox').classList.remove('active');
+  document.getElementById('level-pills').style.display = 'flex';
+  loadLevel(currentLevel);
+});
+
+document.getElementById('btn-mode-sandbox').addEventListener('click', () => {
+  currentMode = 'sandbox';
+  document.getElementById('btn-mode-sandbox').classList.add('active');
+  document.getElementById('btn-mode-campaign').classList.remove('active');
+  document.getElementById('level-pills').style.display = 'none';
+  loadLevel(1);
+});
+
+// Header Actions
+document.getElementById('btn-toggle-vectors').addEventListener('click', function() {
+  showVectors = !showVectors;
+  this.classList.toggle('active', showVectors);
+});
+
+document.getElementById('btn-toggle-sound').addEventListener('click', function() {
+  sound.init();
+  const unmuted = sound.toggle();
+  document.getElementById('sound-icon').textContent = unmuted ? '🔊 声音' : '🔇 静音';
+});
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  loadLevel(currentLevel);
+});
+
+document.getElementById('btn-help').addEventListener('click', () => {
+  document.getElementById('help-box').classList.toggle('show');
+});
+
+// Sharing & URL Hash
+document.getElementById('btn-share').addEventListener('click', () => {
+  const exportData = {
+    lvl: currentLevel,
+    mode: currentMode,
+    nodes: playerNodes.map(n => ({ type: n.type, x: Math.round(n.x), y: Math.round(n.y), power: n.power }))
+  };
+  const b64 = btoa(JSON.stringify(exportData));
+  const shareUrl = `${window.location.origin}${window.location.pathname}#setup=${b64}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareUrl).then(() => showToastMessage('已复制分享链接至剪贴板'));
+  } else {
+    showToastMessage('已复制分享链接至剪贴板');
+  }
+});
+
+function showToastMessage(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function loadFromHash() {
+  if (!window.location.hash || !window.location.hash.startsWith('#setup=')) return;
+  try {
+    const b64 = window.location.hash.replace('#setup=', '');
+    const data = JSON.parse(atob(b64));
+    if (data.mode) {
+      currentMode = data.mode;
+      document.getElementById('btn-mode-campaign').classList.toggle('active', currentMode === 'campaign');
+      document.getElementById('btn-mode-sandbox').classList.toggle('active', currentMode === 'sandbox');
+      document.getElementById('level-pills').style.display = (currentMode === 'campaign') ? 'flex' : 'none';
+    }
+    if (data.lvl) {
+      loadLevel(data.lvl);
+    }
+    if (Array.isArray(data.nodes)) {
+      playerNodes = data.nodes.map(n => {
+        let node = { ...n };
+        if (n.type === 'gravity') { node.radius = 24; node.influenceR = 320; }
+        else if (n.type === 'repulsor') { node.radius = 24; node.influenceR = 240; }
+        else if (n.type === 'lorentz') { node.radius = 28; node.influenceR = 180; }
+        else if (n.type === 'dampener') { node.radius = 26; node.influenceR = 140; }
+        else if (n.type === 'booster') { node.radius = 22; node.influenceR = 100; }
+        else if (n.type === 'collider') { node.radius = 34; node.contained = []; }
+        return node;
+      });
+      showToastMessage('已自动加载分享布局！');
+    }
+  } catch(e) {
+    console.error('Failed to parse setup hash:', e);
+  }
+}
+window.addEventListener('hashchange', loadFromHash);
+
+// Keyboard Shortcuts
+window.addEventListener('keydown', (e) => {
+  if (e.key === '1') selectTool('gravity');
+  if (e.key === '2') selectTool('repulsor');
+  if (e.key === '3') selectTool('lorentz');
+  if (e.key === '4') selectTool('dampener');
+  if (e.key === '5') selectTool('booster');
+  if (e.key === '6') selectTool('collider');
+  if (e.key === 'x' || e.key === 'X') selectTool('demolish');
+  if (e.key === 'v' || e.key === 'V') document.getElementById('btn-toggle-vectors').click();
+  if (e.key === 'm' || e.key === 'M') document.getElementById('btn-toggle-sound').click();
+  if (e.key === 'r' || e.key === 'R') document.getElementById('btn-reset').click();
+});
+
+function selectTool(toolName) {
+  const btn = document.querySelector(`.tool-item[data-tool="${toolName}"]`);
+  if (btn) btn.click();
+}
+
+// Start Engine
+resize();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
