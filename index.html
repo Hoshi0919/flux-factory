@@ -18,6 +18,7 @@
     --pink: #ec4899;
     --blue: #3b82f6;
     --red: #ef4444;
+    --gold: #facc15;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
@@ -58,63 +59,66 @@
     font-size: 20px;
     color: var(--cyan);
     filter: drop-shadow(0 0 8px rgba(0,240,255,0.6));
-    animation: pulse-logo 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse-logo {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
   }
 
   .title-group h1 {
     font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.5px;
+    color: #fff;
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #fff;
+    gap: 6px;
+  }
+
+  .title-group h1 span {
+    color: var(--cyan);
+    font-size: 13px;
+    font-weight: 400;
   }
 
   .title-group p {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-muted);
+    letter-spacing: 0.2px;
   }
 
   /* Mode & Level Switcher */
   .mode-nav {
     display: flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(15, 23, 42, 0.6);
-    padding: 3px 6px;
-    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.8);
     border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
   }
 
   .mode-btn {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    font-size: 12px;
-    padding: 4px 10px;
+    font-size: 11px;
+    padding: 5px 12px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
   }
 
+  .mode-btn:hover { color: #fff; }
   .mode-btn.active {
     background: #1e293b;
     color: var(--cyan);
     font-weight: 600;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   }
 
   .level-pills {
     display: flex;
     gap: 4px;
-    margin-left: 6px;
-    border-left: 1px solid var(--border-color);
-    padding-left: 6px;
+    margin-left: 8px;
+    padding-left: 8px;
+    border-left: 1px solid #334155;
   }
 
   .level-pill {
@@ -125,11 +129,11 @@
     justify-content: center;
     border-radius: 50%;
     font-size: 11px;
-    background: #0f172a;
-    border: 1px solid #334155;
+    background: rgba(30, 41, 59, 0.6);
     color: var(--text-muted);
+    border: 1px solid transparent;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.15s ease;
     position: relative;
   }
 
@@ -137,26 +141,30 @@
   .level-pill.active { background: var(--cyan); color: #080a10; font-weight: bold; border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,240,255,0.4); }
   .level-pill.passed::after {
     content: "✓";
-    font-size: 8px;
     position: absolute;
-    top: -3px;
-    right: -3px;
-    color: var(--emerald);
-    background: #0f172a;
+    top: -4px;
+    right: -4px;
+    font-size: 8px;
+    background: var(--emerald);
+    color: #fff;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    width: 10px;
-    height: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--emerald);
+    font-weight: bold;
   }
 
-  /* HUD Metrics */
+  /* HUD Stats */
   .hud-stats {
     display: flex;
     align-items: center;
     gap: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 4px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
   }
 
   .stat-block {
@@ -166,41 +174,51 @@
   }
 
   .stat-val {
-    font-size: 14px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
     font-weight: 700;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: #fff;
   }
 
   .stat-lbl {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
+  /* Header Actions */
   .header-actions {
     display: flex;
-    gap: 6px;
     align-items: center;
+    gap: 8px;
   }
 
   .action-btn {
-    background: #0f172a;
+    background: #1e293b;
     border: 1px solid #334155;
     color: var(--text-muted);
-    font-size: 12px;
-    padding: 5px 9px;
+    font-size: 11px;
+    padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.15s;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    transition: all 0.2s ease;
   }
 
-  .action-btn:hover { background: #1e293b; color: #fff; border-color: #475569; }
-  .action-btn.active { background: rgba(0,240,255,0.15); color: var(--cyan); border-color: var(--cyan); }
+  .action-btn:hover {
+    color: #fff;
+    border-color: var(--cyan);
+    background: #243248;
+  }
+
+  .action-btn.active {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    background: rgba(0, 240, 255, 0.1);
+  }
 
   /* Main Viewport */
   #viewport {
@@ -210,27 +228,26 @@
     cursor: crosshair;
   }
 
-  canvas {
+  canvas#canvas {
     width: 100%;
     height: 100%;
     display: block;
   }
 
-  /* Target & Mission Banner (Floating) */
+  /* Mission Banner (Campaign Mode) */
   .mission-banner {
     position: absolute;
     top: 14px;
-    left: 16px;
-    background: rgba(13, 17, 27, 0.88);
-    border: 1px solid var(--border-color);
+    left: 18px;
+    background: rgba(15, 23, 42, 0.88);
     backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 10px 14px;
+    padding: 10px 16px;
     max-width: 380px;
     pointer-events: none;
     z-index: 10;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    transition: opacity 0.3s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
 
   .mission-title {
@@ -238,16 +255,13 @@
     font-weight: 700;
     color: var(--cyan);
     margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
 
   .mission-desc {
     font-size: 11px;
     color: #cbd5e1;
-    line-height: 1.5;
-    margin-bottom: 6px;
+    line-height: 1.45;
+    margin-bottom: 8px;
   }
 
   .goal-progress-wrap {
@@ -256,56 +270,76 @@
     background: #1e293b;
     border-radius: 3px;
     overflow: hidden;
-    position: relative;
+    margin-bottom: 4px;
   }
 
   .goal-progress-bar {
-    height: 100%;
     width: 0%;
+    height: 100%;
     background: linear-gradient(90deg, var(--cyan), var(--emerald));
-    transition: width 0.2s ease-out;
+    transition: width 0.1s linear;
   }
 
   .goal-text {
-    font-size: 10px;
-    color: var(--text-muted);
-    margin-top: 4px;
     display: flex;
     justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: monospace;
   }
 
-  /* Floating Dock Toolbar */
+  /* Alert Banner */
+  .alert-banner {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(239, 68, 68, 0.92);
+    border: 1px solid #ef4444;
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    z-index: 25;
+    box-shadow: 0 4px 18px rgba(239, 68, 68, 0.5);
+    animation: alertPulse 0.9s infinite alternate;
+  }
+
+  @keyframes alertPulse {
+    0% { transform: translateX(-50%) scale(0.98); opacity: 0.85; }
+    100% { transform: translateX(-50%) scale(1.02); opacity: 1.0; }
+  }
+
+  /* Bottom Toolbar */
   .toolbar-container {
     position: absolute;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(13, 17, 27, 0.94);
-    border: 1px solid #334155;
+    background: var(--panel-bg);
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
     border-radius: 40px;
     padding: 6px 12px;
     display: flex;
     gap: 6px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
-    z-index: 25;
-    max-width: 95vw;
-    overflow-x: auto;
+    z-index: 10;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(0, 240, 255, 0.08);
   }
 
   .tool-item {
     background: transparent;
     border: 1px solid transparent;
-    color: #94a3b8;
-    padding: 7px 12px;
+    color: var(--text-muted);
+    padding: 7px 13px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    white-space: nowrap;
     transition: all 0.15s ease;
   }
 
@@ -315,15 +349,15 @@
   }
 
   .tool-item.active {
-    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
     border-color: currentColor;
-    background: rgba(255,255,255,0.1);
-    box-shadow: 0 0 12px currentColor;
+    font-weight: 600;
+    box-shadow: 0 0 10px currentColor;
   }
 
   .tool-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
   }
 
@@ -338,102 +372,97 @@
   /* Notification Toast */
   .toast {
     position: absolute;
-    top: 70px;
+    bottom: 80px;
     left: 50%;
-    transform: translateX(-50%) translateY(-20px);
+    transform: translateX(-50%);
     background: rgba(15, 23, 42, 0.95);
     border: 1px solid var(--cyan);
-    color: #fff;
-    padding: 8px 16px;
+    color: var(--cyan);
+    padding: 8px 18px;
     border-radius: 20px;
-    font-size: 12px;
-    box-shadow: 0 4px 20px rgba(0,240,255,0.3);
-    opacity: 0;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 240, 255, 0.3);
     pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
     z-index: 30;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
 
-  /* Victory Dialog */
+  .toast.show { opacity: 1; }
+
+  /* Modal / Dialog */
   .dialog-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(6px);
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(4, 7, 12, 0.75);
+    backdrop-filter: blur(8px);
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 50;
   }
 
   .dialog-card {
-    background: #0d111b;
-    border: 1px solid var(--cyan);
-    border-radius: 14px;
-    padding: 24px 30px;
-    text-align: center;
-    max-width: 400px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
     width: 90%;
-    box-shadow: 0 0 35px rgba(0,240,255,0.35);
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  @keyframes popIn {
-    from { transform: scale(0.85); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    max-width: 440px;
+    padding: 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 30px rgba(0, 240, 255, 0.15);
+    text-align: center;
   }
 
   .dialog-card h2 {
-    font-size: 20px;
     color: var(--cyan);
-    margin-bottom: 8px;
+    font-size: 18px;
+    margin-bottom: 10px;
   }
 
   .dialog-card p {
+    color: #cbd5e1;
     font-size: 13px;
-    color: #94a3b8;
     line-height: 1.6;
     margin-bottom: 20px;
   }
 
   .dialog-btn {
     background: var(--cyan);
-    color: #080a10;
+    color: #07090e;
     border: none;
-    font-weight: 700;
-    font-size: 13px;
-    padding: 10px 22px;
+    padding: 10px 24px;
     border-radius: 8px;
+    font-weight: bold;
     cursor: pointer;
+    font-size: 13px;
     transition: all 0.2s;
   }
+
   .dialog-btn:hover {
-    box-shadow: 0 0 16px rgba(0,240,255,0.7);
-    transform: translateY(-1px);
+    background: #5eead4;
+    box-shadow: 0 0 14px rgba(0,240,255,0.6);
   }
 
-  /* Quick Help Overlay */
+  /* Help Tooltip Box */
   .help-box {
     position: absolute;
-    bottom: 80px;
-    right: 20px;
-    background: rgba(13, 17, 27, 0.9);
+    top: 14px;
+    right: 18px;
+    background: rgba(15, 23, 42, 0.9);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 12px;
+    padding: 12px 16px;
     font-size: 11px;
     color: #94a3b8;
     line-height: 1.6;
-    max-width: 280px;
+    max-width: 320px;
+    pointer-events: none;
     display: none;
-    z-index: 20;
+    z-index: 10;
   }
   .help-box.show { display: block; }
-  .help-box strong { color: #fff; }
+  .help-box strong { color: #f1f5f9; }
 </style>
 </head>
 <body>
@@ -443,7 +472,7 @@
     <div class="logo-icon">◈</div>
     <div class="title-group">
       <h1>FLUX FACTORY <span>· 通量工场</span></h1>
-      <p>无轨物理场流体物流模拟器</p>
+      <p>无轨物理场流体物流模拟器 (能级共振与电网优化版)</p>
     </div>
   </div>
 
@@ -456,6 +485,9 @@
       <div class="level-pill" data-lvl="3">3</div>
       <div class="level-pill" data-lvl="4">4</div>
       <div class="level-pill" data-lvl="5">5</div>
+      <div class="level-pill" data-lvl="6">6</div>
+      <div class="level-pill" data-lvl="7">7</div>
+      <div class="level-pill" data-lvl="8">8</div>
     </div>
   </div>
 
@@ -471,6 +503,10 @@
     <div class="stat-block">
       <span class="stat-val" style="color:var(--cyan)" id="hud-throughput">0.0 /s</span>
       <span class="stat-lbl">交付吞吐率</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-val" style="color:var(--gold)" id="hud-power">0 / 100 MW</span>
+      <span class="stat-lbl">电网功率</span>
     </div>
   </div>
 
@@ -506,15 +542,19 @@
     </div>
   </div>
 
+  <div class="alert-banner" id="alert-banner" style="display:none;"></div>
+
   <canvas id="canvas"></canvas>
 
   <div class="help-box" id="help-box">
-    <strong>💡 快捷交互指引：</strong><br>
+    <strong>💡 快捷交互与物理力学指引：</strong><br>
     • <strong>左键点击</strong>：在光标处部署选定场节点。<br>
     • <strong>拖拽已有节点</strong>：微调空间物理位置。<br>
     • <strong>滚轮滑动</strong>：在节点上滚动可调节力场功率！<br>
     • <strong>右键点击</strong>：快速拆除指定节点。<br>
-    • <strong>键盘快捷键</strong>：1~6 选择工具，X 拆除，V 切换矢量场，M 静音，R 重置。
+    • <strong>共振速度窗口 (1.8 ~ 5.2)</strong>：对撞环要求进入速度在区间内，太慢会亚临界弹开，太快会超临界撞碎！<br>
+    • <strong>电网预算限制</strong>：部署节点消耗 MW，超载将触发欠压 (-45% 场强)！<br>
+    • <strong>快捷键</strong>：1~6 选工具，X 拆除，V 矢量场，M 静音，R 重置。
   </div>
 
   <div class="toast" id="toast">已复制分享链接至剪贴板</div>
@@ -602,6 +642,20 @@ class SoundEngine {
     this.playTone(523.25, 0.25, 'triangle', 0.12);
     setTimeout(() => this.playTone(659.25, 0.25, 'sine', 0.1), 40);
   }
+  playSubcritical() {
+    this.playTone(1200, 0.08, 'triangle', 0.08);
+    setTimeout(() => this.playTone(1600, 0.05, 'sine', 0.06), 25);
+  }
+  playShatter() {
+    this.playTone(130, 0.22, 'sawtooth', 0.12);
+    setTimeout(() => this.playTone(75, 0.18, 'square', 0.09), 40);
+  }
+  playDecay() {
+    this.playTone(260, 0.14, 'sawtooth', 0.07);
+  }
+  playBrownout() {
+    this.playTone(190, 0.25, 'square', 0.08);
+  }
   playPlace() {
     this.playTone(320, 0.08, 'square', 0.04);
   }
@@ -629,6 +683,8 @@ let staticEmitters = [];
 let staticCollectors = [];
 let obstacles = [];
 let shockwaves = [];
+let floatingTexts = [];
+let debrisSparks = [];
 
 // Cursor & Interaction State
 let mousePos = { x: -100, y: -100, inside: false };
@@ -652,14 +708,26 @@ let sustainedGoalTime = 0;
 let lastFrameTime = performance.now();
 
 const MAX_PARTICLES = 1400;
+const MIN_FUSION_SPEED = 1.8;
+const MAX_FUSION_SPEED = 5.2;
 
-// Level Definitions
+const POWER_RATINGS = {
+  gravity: 12,
+  repulsor: 10,
+  lorentz: 15,
+  dampener: 8,
+  booster: 14,
+  collider: 25
+};
+
+// Level Definitions (Expanded to 8 Full Strategic Levels)
 const LEVELS = {
   1: {
     title: "◈ 第 1 关：引力弹弓",
     desc: "使用引力井在发射源与货舱间构建中继弯轨，避开中央屏障，将粒子流安全导入货舱。",
     targetThroughput: 1.8,
     requiredHoldTime: 2.5,
+    maxPower: 100,
     setup: (w, h) => {
       staticEmitters = [
         { x: 80, y: h * 0.55, radius: 24, type: 'alpha', angle: 0.0, rate: 2, color: '#00f0ff' }
@@ -677,6 +745,7 @@ const LEVELS = {
     desc: "中央发射混杂束(α正/β负)。在途中放置洛伦兹环，利用正负电荷相反偏转分别分流至上下双仓！",
     targetThroughput: 2.5,
     requiredHoldTime: 2.5,
+    maxPower: 100,
     setup: (w, h) => {
       staticEmitters = [
         { x: 80, y: h * 0.5, radius: 24, type: 'mixed', angle: 0.0, rate: 3, color: '#fff' }
@@ -691,10 +760,11 @@ const LEVELS = {
     }
   },
   3: {
-    title: "◈ 第 3 关：托卡马克聚变",
-    desc: "将上下两路α与β束导引至中央对撞环，合成中性紫色等离子(γ)，并送入右侧终点货舱。",
+    title: "◈ 第 3 关：托卡马克聚变与能级窗口",
+    desc: "将上下两路α与β束导引至中央对撞环。注意速度须在共振窗口(1.8~5.2)内，方可聚变中性γ等离子并入港！",
     targetThroughput: 1.8,
     requiredHoldTime: 2.5,
+    maxPower: 100,
     setup: (w, h) => {
       staticEmitters = [
         { x: 80, y: h * 0.25, radius: 24, type: 'alpha', angle: 0.1, rate: 2, color: '#00f0ff' },
@@ -708,9 +778,10 @@ const LEVELS = {
   },
   4: {
     title: "◈ 第 4 关：减速与入港",
-    desc: "高速超流发射束！若不减速会导致粒子冲出货舱。在货舱前架设阻尼线圈吸收多余动能。",
+    desc: "超高速发射束！若粒子能量过高会撞碎或脱轨。在进仓前架设阻尼线圈阶梯吸收多余动能。",
     targetThroughput: 2.0,
     requiredHoldTime: 2.5,
+    maxPower: 100,
     setup: (w, h) => {
       staticEmitters = [
         { x: 80, y: h * 0.3, radius: 24, type: 'alpha', angle: 0.15, rate: 3, speedMod: 1.6, color: '#00f0ff' }
@@ -728,6 +799,7 @@ const LEVELS = {
     desc: "多源产线综合调度！制造高纯度γ等离子，达成持续稳定的 3.5/s 高通量输送！",
     targetThroughput: 3.5,
     requiredHoldTime: 3.0,
+    maxPower: 110,
     setup: (w, h) => {
       staticEmitters = [
         { x: 80, y: h * 0.2, radius: 24, type: 'alpha', angle: 0.1, rate: 3, color: '#00f0ff' },
@@ -741,25 +813,88 @@ const LEVELS = {
         { x: w * 0.7, y: h * 0.25, w: 30, h: h * 0.5, color: '#334155' }
       ];
     }
+  },
+  6: {
+    title: "◈ 第 6 关：能量受限拓扑",
+    desc: "严苛电网预算 (上限 65 MW)！考验以最精简的场节点构筑高效通道，一旦超载欠压将导致场力暴跌 45%。",
+    targetThroughput: 2.2,
+    requiredHoldTime: 2.5,
+    maxPower: 65,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.35, radius: 24, type: 'alpha', angle: 0.05, rate: 3, color: '#00f0ff' },
+        { x: 80, y: h * 0.65, radius: 24, type: 'beta', angle: -0.05, rate: 3, color: '#ff8800' }
+      ];
+      staticCollectors = [
+        { x: w - 100, y: h * 0.5, radius: 44, target: 'gamma', color: '#c084fc', label: '节能核心' }
+      ];
+      obstacles = [
+        { x: w * 0.45, y: h * 0.35, w: 30, h: h * 0.3, color: '#334155' }
+      ];
+    }
+  },
+  7: {
+    title: "◈ 第 7 关：欧米伽极速竞速",
+    desc: "双对撞合成超高阶黄金欧米伽(Ω)等离子！但Ω粒子半衰期极短(约3.3秒)，必须用加速轨极速送入Ω货舱，否则湮灭！",
+    targetThroughput: 1.2,
+    requiredHoldTime: 2.5,
+    maxPower: 95,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.2, radius: 24, type: 'gamma', angle: 0.1, rate: 2, color: '#c084fc' },
+        { x: 80, y: h * 0.8, radius: 24, type: 'gamma', angle: -0.1, rate: 2, color: '#c084fc' }
+      ];
+      staticCollectors = [
+        { x: w - 100, y: h * 0.5, radius: 46, target: 'omega', color: '#facc15', label: 'Ω 奇点仓' }
+      ];
+      obstacles = [
+        { x: w * 0.55, y: h * 0.2, w: 25, h: h * 0.6, color: '#334155' }
+      ];
+    }
+  },
+  8: {
+    title: "◈ 第 8 关：拓扑大统一",
+    desc: "终极大关！对撞聚变会伴生副产物高能正电子(π+)，若进入γ仓会导致货舱污染停滞！利用洛伦兹力将副产物排入上方废品仓，并达成 2.2/s 持续交付！",
+    targetThroughput: 2.2,
+    requiredHoldTime: 3.0,
+    maxPower: 85,
+    setup: (w, h) => {
+      staticEmitters = [
+        { x: 80, y: h * 0.25, radius: 24, type: 'alpha', angle: 0.1, rate: 3, color: '#00f0ff' },
+        { x: 80, y: h * 0.75, radius: 24, type: 'beta', angle: -0.1, rate: 3, color: '#ff8800' }
+      ];
+      staticCollectors = [
+        { x: w - 100, y: h * 0.5, radius: 46, target: 'gamma', color: '#c084fc', label: 'γ 纯净港' },
+        { x: w - 180, y: h * 0.15, radius: 36, target: 'positron', color: '#fb7185', label: '副产物排污' }
+      ];
+      obstacles = [
+        { x: w * 0.35, y: h * 0.45, w: 40, h: h * 0.1, color: '#334155' },
+        { x: w * 0.65, y: h * 0.3, w: 30, h: h * 0.4, color: '#334155' }
+      ];
+    }
   }
 };
 
 // Particle Class
 class Particle {
-  constructor(x, y, vx, vy, type) {
+  constructor(x, y, vx, vy, type, options = {}) {
     this.x = x;
     this.y = y;
     this.vx = vx;
     this.vy = vy;
-    this.type = type;
-    this.charge = (type === 'alpha') ? 1.0 : (type === 'beta') ? -1.0 : 0.0;
+    this.type = type; // 'alpha', 'beta', 'gamma', 'omega', 'positron'
+    this.charge = (type === 'alpha' || type === 'positron') ? 1.0 : (type === 'beta') ? -1.0 : 0.0;
     this.life = 0;
-    this.maxLife = 700;
+    this.maxLife = options.maxLife || 700;
+    this.halfLife = options.halfLife !== undefined ? options.halfLife : (type === 'omega' ? 200 : null);
   }
   update() {
     this.x += this.vx;
     this.y += this.vy;
     this.life++;
+    if (this.halfLife !== null) {
+      this.halfLife--;
+    }
   }
   draw(c) {
     c.save();
@@ -767,10 +902,20 @@ class Particle {
     let rad = 2.5;
     if (this.type === 'beta') { col = '#ff9900'; rad = 2.5; }
     else if (this.type === 'gamma') { col = '#c084fc'; rad = 3.8; }
+    else if (this.type === 'omega') {
+      col = '#facc15';
+      rad = 4.8;
+      if (this.halfLife !== null && this.halfLife < 80 && (Math.floor(this.life / 4) % 2 === 0)) {
+        col = '#ef4444';
+      }
+    } else if (this.type === 'positron') {
+      col = '#fb7185';
+      rad = 2.2;
+    }
 
     c.fillStyle = col;
     c.shadowColor = col;
-    c.shadowBlur = (this.type === 'gamma') ? 8 : 4;
+    c.shadowBlur = (this.type === 'omega') ? 12 : (this.type === 'gamma') ? 8 : 4;
     c.beginPath();
     c.arc(this.x, this.y, rad, 0, Math.PI * 2);
     c.fill();
@@ -783,14 +928,14 @@ class Shockwave {
   constructor(x, y, color = '#ec4899') {
     this.x = x;
     this.y = y;
-    this.radius = 6;
-    this.maxRadius = 60;
+    this.radius = 4;
+    this.maxRadius = 38;
     this.alpha = 1.0;
     this.color = color;
   }
   update() {
-    this.radius += 2.5;
-    this.alpha -= 0.04;
+    this.radius += 2.0;
+    this.alpha -= 0.045;
   }
   draw(c) {
     if (this.alpha <= 0) return;
@@ -801,6 +946,62 @@ class Shockwave {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     c.stroke();
+    c.restore();
+  }
+}
+
+// Floating Text Feedback
+class FloatingText {
+  constructor(x, y, text, color = '#fff') {
+    this.x = x;
+    this.y = y;
+    this.text = text;
+    this.color = color;
+    this.life = 45;
+  }
+  update() {
+    this.y -= 0.6;
+    this.life--;
+  }
+  draw(c) {
+    if (this.life <= 0) return;
+    c.save();
+    c.globalAlpha = Math.max(0, this.life / 45);
+    c.fillStyle = this.color;
+    c.font = 'bold 11px monospace';
+    c.textAlign = 'center';
+    c.fillText(this.text, this.x, this.y);
+    c.restore();
+  }
+}
+
+// Debris Sparks (for Shatter / Decay)
+class DebrisSpark {
+  constructor(x, y, color = '#94a3b8') {
+    this.x = x;
+    this.y = y;
+    const a = Math.random() * Math.PI * 2;
+    const sp = 0.8 + Math.random() * 2.2;
+    this.vx = Math.cos(a) * sp;
+    this.vy = Math.sin(a) * sp;
+    this.color = color;
+    this.life = 25;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vx *= 0.94;
+    this.vy *= 0.94;
+    this.life--;
+  }
+  draw(c) {
+    if (this.life <= 0) return;
+    c.save();
+    c.globalAlpha = this.life / 25;
+    c.fillStyle = this.color;
+    c.beginPath();
+    c.arc(this.x, this.y, 1.8, 0, Math.PI * 2);
+    c.fill();
     c.restore();
   }
 }
@@ -823,12 +1024,14 @@ function loadLevel(lvl) {
   particles = [];
   playerNodes = [];
   shockwaves = [];
+  floatingTexts = [];
+  debrisSparks = [];
   collectedTimestamps = [];
   sustainedGoalTime = 0;
   totalFused = 0;
 
   if (currentMode === 'campaign') {
-    const def = LEVELS[lvl];
+    const def = LEVELS[lvl] || LEVELS[1];
     document.getElementById('m-title').textContent = def.title;
     document.getElementById('m-desc').textContent = def.desc;
     document.getElementById('goal-target-lbl').textContent = `目标: ${def.targetThroughput.toFixed(1)} /s 维持 ${def.requiredHoldTime} 秒`;
@@ -854,6 +1057,7 @@ function loadLevel(lvl) {
   document.querySelectorAll('.level-pill').forEach(pill => {
     pill.classList.toggle('active', parseInt(pill.dataset.lvl) === lvl);
   });
+  updatePowerGrid();
 }
 
 // Spawning Particles
@@ -877,13 +1081,59 @@ function spawnParticles() {
   }
 }
 
+// Power Grid Calculator
+function updatePowerGrid() {
+  const def = LEVELS[currentLevel] || {};
+  const maxP = (currentMode === 'campaign') ? (def.maxPower || 100) : 200;
+  let totalP = 0;
+  for (let node of playerNodes) {
+    totalP += (POWER_RATINGS[node.type] || 0);
+  }
+
+  const isBrownout = totalP > maxP;
+  const powerEl = document.getElementById('hud-power');
+  if (powerEl) {
+    powerEl.textContent = `${totalP} / ${maxP} MW`;
+    powerEl.style.color = isBrownout ? 'var(--red)' : (totalP > maxP * 0.8 ? 'var(--orange)' : 'var(--gold)');
+  }
+
+  const alertEl = document.getElementById('alert-banner');
+  if (alertEl) {
+    if (isBrownout) {
+      alertEl.style.display = 'block';
+      alertEl.textContent = `⚡ 电网欠压过载！(超出 ${totalP - maxP} MW) 场力输出削弱 45%`;
+      if (!window._lastBrownoutBeep || Date.now() - window._lastBrownoutBeep > 3500) {
+        window._lastBrownoutBeep = Date.now();
+        sound.playBrownout();
+      }
+    } else {
+      alertEl.style.display = 'none';
+    }
+  }
+
+  return isBrownout ? 0.55 : 1.0;
+}
+
 // Physics Loop
 function updatePhysics(dt) {
   spawnParticles();
   const now = performance.now();
+  const brownoutFactor = updatePowerGrid();
 
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
+
+    // Check decay
+    if (p.halfLife !== null && p.halfLife <= 0) {
+      particles.splice(i, 1);
+      sound.playDecay();
+      shockwaves.push(new Shockwave(p.x, p.y, '#ef4444'));
+      floatingTexts.push(new FloatingText(p.x, p.y, '粒子半衰期湮灭!', '#ef4444'));
+      for (let k = 0; k < 4; k++) {
+        debrisSparks.push(new DebrisSpark(p.x, p.y, '#facc15'));
+      }
+      continue;
+    }
 
     // Interaction with Player Field Nodes
     for (let node of playerNodes) {
@@ -894,14 +1144,14 @@ function updatePhysics(dt) {
       if (node.type === 'gravity') {
         const influenceR = node.influenceR || 320;
         if (dist > 1 && dist < influenceR) {
-          const factor = (node.power || 450) / (dist * dist + 400.0);
+          const factor = ((node.power || 450) * brownoutFactor) / (dist * dist + 400.0);
           p.vx += (dx / dist) * factor;
           p.vy += (dy / dist) * factor;
         }
       } else if (node.type === 'repulsor') {
         const influenceR = node.influenceR || 240;
         if (dist > 1 && dist < influenceR) {
-          const factor = (node.power || 450) / (dist * dist + 200.0);
+          const factor = ((node.power || 450) * brownoutFactor) / (dist * dist + 200.0);
           p.vx -= (dx / dist) * factor;
           p.vy -= (dy / dist) * factor;
         }
@@ -909,7 +1159,7 @@ function updatePhysics(dt) {
         const influenceR = node.influenceR || 180;
         if (dist > 1 && dist < influenceR) {
           const falloff = (1.0 - dist / influenceR);
-          const effectiveB = (node.power || 3.5) * 0.05 * falloff;
+          const effectiveB = (node.power || 3.5) * 0.05 * falloff * brownoutFactor;
           const ax = p.charge * p.vy * effectiveB;
           const ay = -p.charge * p.vx * effectiveB;
           p.vx += ax;
@@ -918,7 +1168,7 @@ function updatePhysics(dt) {
       } else if (node.type === 'dampener') {
         const influenceR = node.influenceR || 140;
         if (dist < influenceR) {
-          const damp = 0.06;
+          const damp = 0.06 * brownoutFactor;
           p.vx *= (1 - damp);
           p.vy *= (1 - damp);
         }
@@ -926,8 +1176,8 @@ function updatePhysics(dt) {
         const influenceR = node.influenceR || 100;
         if (dist < influenceR) {
           const angle = node.angle || 0;
-          p.vx += Math.cos(angle) * 0.45;
-          p.vy += Math.sin(angle) * 0.45;
+          p.vx += Math.cos(angle) * 0.45 * brownoutFactor;
+          p.vy += Math.sin(angle) * 0.45 * brownoutFactor;
         }
       } else if (node.type === 'collider') {
         if (dist < node.radius) {
@@ -937,26 +1187,99 @@ function updatePhysics(dt) {
 
           const alphaIdx = node.contained.findIndex(x => x.type === 'alpha');
           const betaIdx = node.contained.findIndex(x => x.type === 'beta');
+          const gammaIndices = node.contained.map((x, idx) => x.type === 'gamma' ? idx : -1).filter(idx => idx !== -1);
 
+          // Alpha + Beta -> Gamma
           if (alphaIdx !== -1 && betaIdx !== -1) {
             const pA = node.contained[alphaIdx];
             const pB = node.contained[betaIdx];
             node.contained = node.contained.filter((_, idx) => idx !== alphaIdx && idx !== betaIdx);
 
-            totalFused++;
-            sound.playFusion();
-            shockwaves.push(new Shockwave(node.x, node.y, '#ec4899'));
+            const spA = Math.hypot(pA.vx, pA.vy);
+            const spB = Math.hypot(pB.vx, pB.vy);
+            const avgSpeed = (spA + spB) / 2;
 
-            const outAngle = Math.atan2(pA.vy + pB.vy, pA.vx + pB.vx) || (Math.random() * Math.PI * 2);
-            const speed = 3.6;
-            const gamma = new Particle(
+            if (avgSpeed < MIN_FUSION_SPEED) {
+              // Subcritical bounce
+              sound.playSubcritical();
+              floatingTexts.push(new FloatingText(node.x, node.y - node.radius - 6, '亚临界反弹 (过慢)', '#94a3b8'));
+              shockwaves.push(new Shockwave(node.x, node.y, '#ffffff'));
+              const a1 = Math.atan2(pA.vy, pA.vx) + Math.PI + (Math.random() - 0.5) * 0.6;
+              const a2 = Math.atan2(pB.vy, pB.vx) + Math.PI + (Math.random() - 0.5) * 0.6;
+              pA.x = node.x + Math.cos(a1) * (node.radius + 4);
+              pA.y = node.y + Math.sin(a1) * (node.radius + 4);
+              pA.vx = Math.cos(a1) * Math.max(1.6, spA * 0.85);
+              pA.vy = Math.sin(a1) * Math.max(1.6, spA * 0.85);
+              pB.x = node.x + Math.cos(a2) * (node.radius + 4);
+              pB.y = node.y + Math.sin(a2) * (node.radius + 4);
+              pB.vx = Math.cos(a2) * Math.max(1.6, spB * 0.85);
+              pB.vy = Math.sin(a2) * Math.max(1.6, spB * 0.85);
+              particles.push(pA);
+              particles.push(pB);
+            } else if (avgSpeed > MAX_FUSION_SPEED) {
+              // Supercritical shatter
+              sound.playShatter();
+              floatingTexts.push(new FloatingText(node.x, node.y - node.radius - 6, '超临界撞碎 (过快)', '#ef4444'));
+              shockwaves.push(new Shockwave(node.x, node.y, '#ef4444'));
+              for (let k = 0; k < 6; k++) {
+                debrisSparks.push(new DebrisSpark(node.x, node.y, '#f97316'));
+              }
+            } else {
+              // Resonant fusion!
+              totalFused++;
+              sound.playFusion();
+              floatingTexts.push(new FloatingText(node.x, node.y - node.radius - 6, '共振聚变!', '#00f0ff'));
+              shockwaves.push(new Shockwave(node.x, node.y, '#ec4899'));
+
+              const outAngle = Math.atan2(pA.vy + pB.vy, pA.vx + pB.vx) || (Math.random() * Math.PI * 2);
+              const speed = 3.6;
+              const gamma = new Particle(
+                node.x + Math.cos(outAngle) * (node.radius + 6),
+                node.y + Math.sin(outAngle) * (node.radius + 6),
+                Math.cos(outAngle) * speed,
+                Math.sin(outAngle) * speed,
+                'gamma'
+              );
+              particles.push(gamma);
+
+              // Level 8 produces Positron byproduct!
+              if (currentLevel === 8) {
+                const byAngle = outAngle + Math.PI * 0.65;
+                const pos = new Particle(
+                  node.x + Math.cos(byAngle) * (node.radius + 6),
+                  node.y + Math.sin(byAngle) * (node.radius + 6),
+                  Math.cos(byAngle) * 3.2,
+                  Math.sin(byAngle) * 3.2,
+                  'positron'
+                );
+                particles.push(pos);
+              }
+            }
+          }
+          // Gamma + Gamma -> Omega (High-tier fusion in Level 7)
+          else if (gammaIndices.length >= 2) {
+            const g1Idx = gammaIndices[0];
+            const g2Idx = gammaIndices[1];
+            const pG1 = node.contained[g1Idx];
+            const pG2 = node.contained[g2Idx];
+            node.contained = node.contained.filter((_, idx) => idx !== g1Idx && idx !== g2Idx);
+
+            totalFused += 2;
+            sound.playFusion();
+            floatingTexts.push(new FloatingText(node.x, node.y - node.radius - 6, '高阶欧米伽聚变!', '#facc15'));
+            shockwaves.push(new Shockwave(node.x, node.y, '#facc15'));
+
+            const outAngle = Math.atan2(pG1.vy + pG2.vy, pG1.vx + pG2.vx) || (Math.random() * Math.PI * 2);
+            const speed = 4.0;
+            const omega = new Particle(
               node.x + Math.cos(outAngle) * (node.radius + 6),
               node.y + Math.sin(outAngle) * (node.radius + 6),
               Math.cos(outAngle) * speed,
               Math.sin(outAngle) * speed,
-              'gamma'
+              'omega',
+              { halfLife: 200 }
             );
-            particles.push(gamma);
+            particles.push(omega);
           }
           break;
         }
@@ -983,10 +1306,27 @@ function updatePhysics(dt) {
         p.vx += ((col.x - p.x) / d) * suction;
         p.vy += ((col.y - p.y) / d) * suction;
       }
-      if (d < col.radius && (col.target === p.type || col.target === 'any')) {
-        collectedTimestamps.push(now);
-        sound.playCollect();
-        particles.splice(i, 1);
+      if (d < col.radius) {
+        if (col.target === p.type || col.target === 'any') {
+          // Check if dock is currently stalled by contamination
+          if (col.stalledUntil && now < col.stalledUntil) {
+            // Stalled: bounce particle
+            p.vx = -p.vx * 0.8;
+            p.vy = -p.vy * 0.8;
+          } else {
+            collectedTimestamps.push(now);
+            sound.playCollect();
+            particles.splice(i, 1);
+            shockwaves.push(new Shockwave(col.x, col.y, col.color));
+          }
+        } else {
+          // Contamination!
+          particles.splice(i, 1);
+          sound.playShatter();
+          col.stalledUntil = now + 1500;
+          floatingTexts.push(new FloatingText(col.x, col.y - col.radius, '货舱污染警报! (-1.5s 停滞)', '#ef4444'));
+          shockwaves.push(new Shockwave(col.x, col.y, '#ef4444'));
+        }
         break;
       }
     }
@@ -1013,6 +1353,18 @@ function updatePhysics(dt) {
     if (shockwaves[k].alpha <= 0) shockwaves.splice(k, 1);
   }
 
+  // Update Floating Texts
+  for (let k = floatingTexts.length - 1; k >= 0; k--) {
+    floatingTexts[k].update();
+    if (floatingTexts[k].life <= 0) floatingTexts.splice(k, 1);
+  }
+
+  // Update Debris Sparks
+  for (let k = debrisSparks.length - 1; k >= 0; k--) {
+    debrisSparks[k].update();
+    if (debrisSparks[k].life <= 0) debrisSparks.splice(k, 1);
+  }
+
   // Throughput Calculation
   const windowTime = now - 3000;
   collectedTimestamps = collectedTimestamps.filter(t => t > windowTime);
@@ -1025,7 +1377,7 @@ function updatePhysics(dt) {
 
   // Goal & Victory Checks
   if (currentMode === 'campaign') {
-    const def = LEVELS[currentLevel];
+    const def = LEVELS[currentLevel] || LEVELS[1];
     if (throughput >= def.targetThroughput) {
       sustainedGoalTime += dt;
       if (sustainedGoalTime >= def.requiredHoldTime) {
@@ -1052,12 +1404,13 @@ function triggerVictory() {
 
 document.getElementById('btn-next-level').addEventListener('click', () => {
   document.getElementById('victory-modal').style.display = 'none';
-  if (currentLevel < 5) {
+  if (currentLevel < 8) {
     loadLevel(currentLevel + 1);
   } else {
     currentMode = 'sandbox';
     document.getElementById('btn-mode-campaign').classList.remove('active');
     document.getElementById('btn-mode-sandbox').classList.add('active');
+    document.getElementById('level-pills').style.display = 'none';
     loadLevel(1);
   }
 });
@@ -1116,7 +1469,10 @@ function render() {
   // Draw Static Collectors with Suction Aura
   for (let col of staticCollectors) {
     ctx.save();
-    ctx.strokeStyle = col.color + '33';
+    const isStalled = col.stalledUntil && performance.now() < col.stalledUntil;
+    const colColor = isStalled ? '#ef4444' : col.color;
+
+    ctx.strokeStyle = colColor + '33';
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 6]);
     ctx.beginPath();
@@ -1124,7 +1480,7 @@ function render() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.strokeStyle = col.color;
+    ctx.strokeStyle = colColor;
     ctx.lineWidth = 3;
     ctx.setLineDash([6, 4]);
     const rot = (performance.now() / 600) % (Math.PI * 2);
@@ -1133,7 +1489,7 @@ function render() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = col.color + '1f';
+    ctx.fillStyle = colColor + '1f';
     ctx.beginPath();
     ctx.arc(col.x, col.y, col.radius, 0, Math.PI * 2);
     ctx.fill();
@@ -1141,7 +1497,7 @@ function render() {
     ctx.fillStyle = '#fff';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(col.label || '货舱', col.x, col.y + 4);
+    ctx.fillText(isStalled ? '⚠️ 污染停滞' : (col.label || '货舱'), col.x, col.y + 4);
     ctx.restore();
   }
 
@@ -1164,11 +1520,9 @@ function render() {
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('引力井', node.x, node.y + 3);
-      if (node.power !== undefined) {
-        ctx.fillStyle = 'rgba(0,240,255,0.7)';
-        ctx.font = '9px monospace';
-        ctx.fillText(`P:${Math.round(node.power)}`, node.x, node.y + 15);
-      }
+      ctx.fillStyle = 'rgba(0,240,255,0.7)';
+      ctx.font = '9px monospace';
+      ctx.fillText(`12MW`, node.x, node.y + 15);
     } else if (node.type === 'repulsor') {
       ctx.strokeStyle = '#ff8800';
       ctx.fillStyle = 'rgba(255,136,0,0.14)';
@@ -1178,11 +1532,9 @@ function render() {
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('斥力场', node.x, node.y + 3);
-      if (node.power !== undefined) {
-        ctx.fillStyle = 'rgba(255,136,0,0.7)';
-        ctx.font = '9px monospace';
-        ctx.fillText(`P:${Math.round(node.power)}`, node.x, node.y + 15);
-      }
+      ctx.fillStyle = 'rgba(255,136,0,0.7)';
+      ctx.font = '9px monospace';
+      ctx.fillText(`10MW`, node.x, node.y + 15);
     } else if (node.type === 'lorentz') {
       ctx.strokeStyle = '#3b82f6';
       ctx.fillStyle = 'rgba(59,130,246,0.18)';
@@ -1192,11 +1544,9 @@ function render() {
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('洛伦兹', node.x, node.y + 3);
-      if (node.power !== undefined) {
-        ctx.fillStyle = 'rgba(147,197,253,0.7)';
-        ctx.font = '9px monospace';
-        ctx.fillText(`B:${node.power.toFixed(1)}`, node.x, node.y + 15);
-      }
+      ctx.fillStyle = 'rgba(147,197,253,0.7)';
+      ctx.font = '9px monospace';
+      ctx.fillText(`15MW`, node.x, node.y + 15);
     } else if (node.type === 'dampener') {
       ctx.strokeStyle = '#10b981';
       ctx.fillStyle = 'rgba(16,185,129,0.18)';
@@ -1205,7 +1555,10 @@ function render() {
       ctx.fillStyle = '#10b981';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('阻尼器', node.x, node.y + 4);
+      ctx.fillText('阻尼器', node.x, node.y + 3);
+      ctx.fillStyle = 'rgba(16,185,129,0.7)';
+      ctx.font = '9px monospace';
+      ctx.fillText(`8MW`, node.x, node.y + 15);
     } else if (node.type === 'booster') {
       ctx.strokeStyle = '#c084fc';
       ctx.fillStyle = 'rgba(192,132,252,0.18)';
@@ -1230,10 +1583,9 @@ function render() {
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('加速轨', node.x, node.y - 10);
-      const deg = Math.round(((angle * 180 / Math.PI) % 360 + 360) % 360);
       ctx.fillStyle = 'rgba(233,213,255,0.7)';
       ctx.font = '9px monospace';
-      ctx.fillText(`${deg}°`, node.x, node.y + 15);
+      ctx.fillText(`14MW`, node.x, node.y + 15);
     } else if (node.type === 'collider') {
       ctx.strokeStyle = '#ec4899';
       ctx.fillStyle = 'rgba(236,72,153,0.2)';
@@ -1242,7 +1594,10 @@ function render() {
       ctx.fillStyle = '#ec4899';
       ctx.font = '10px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('对撞环', node.x, node.y + 4);
+      ctx.fillText('对撞环', node.x, node.y + 3);
+      ctx.fillStyle = 'rgba(236,72,153,0.8)';
+      ctx.font = '9px monospace';
+      ctx.fillText(`25MW`, node.x, node.y + 15);
     }
     ctx.restore();
   }
@@ -1277,6 +1632,16 @@ function render() {
   // Draw Shockwaves
   for (let s of shockwaves) {
     s.draw(ctx);
+  }
+
+  // Draw Debris Sparks
+  for (let sp of debrisSparks) {
+    sp.draw(ctx);
+  }
+
+  // Draw Floating Texts
+  for (let ft of floatingTexts) {
+    ft.draw(ctx);
   }
 }
 
@@ -1321,137 +1686,130 @@ function drawVectorField() {
   ctx.restore();
 }
 
-// Main Animation Loop
+// Game Loop
 function loop(timestamp) {
-  const dt = Math.min(0.05, (timestamp - lastFrameTime) / 1000);
+  const dt = Math.min(0.06, (timestamp - lastFrameTime) / 1000);
   lastFrameTime = timestamp;
 
   updatePhysics(dt);
   render();
+
   requestAnimationFrame(loop);
 }
 
-// Pointer & Interaction Handling
-viewport.addEventListener('pointerenter', () => mousePos.inside = true);
-viewport.addEventListener('pointerleave', () => {
-  mousePos.inside = false;
-  draggedNode = null;
+// Pointer Events & Tool Actions
+canvas.addEventListener('pointerdown', (e) => {
+  sound.init();
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  // Right-click: Demolish directly
+  if (e.button === 2) {
+    demolishAt(x, y);
+    return;
+  }
+
+  if (currentTool === 'demolish') {
+    demolishAt(x, y);
+    return;
+  }
+
+  // Check if clicked existing node to drag
+  const clickedIdx = playerNodes.findIndex(n => Math.hypot(n.x - x, n.y - y) < n.radius + 6);
+  if (clickedIdx !== -1) {
+    draggedNode = playerNodes[clickedIdx];
+    return;
+  }
+
+  // Otherwise, place new node
+  placeNode(currentTool, x, y);
 });
 
-viewport.addEventListener('pointermove', (e) => {
+canvas.addEventListener('pointermove', (e) => {
   const rect = canvas.getBoundingClientRect();
   mousePos.x = e.clientX - rect.left;
   mousePos.y = e.clientY - rect.top;
   mousePos.inside = true;
 
   if (draggedNode) {
-    draggedNode.x = mousePos.x;
-    draggedNode.y = mousePos.y;
+    draggedNode.x = Math.max(20, Math.min(W - 20, mousePos.x));
+    draggedNode.y = Math.max(20, Math.min(H - 20, mousePos.y));
   }
 });
 
-let pointerDownTrack = { x: 0, y: 0, time: 0, node: null };
-
-viewport.addEventListener('pointerdown', (e) => {
-  sound.init();
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  pointerDownTrack = { x, y, time: performance.now(), node: null };
-
-  if (e.button === 2 || currentTool === 'demolish') {
-    const idx = playerNodes.findIndex(n => Math.hypot(n.x - x, n.y - y) < n.radius + 12);
-    if (idx !== -1) {
-      playerNodes.splice(idx, 1);
-      sound.playDelete();
-    }
-    return;
-  }
-
-  const hitNode = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 10);
-  if (hitNode) {
-    draggedNode = hitNode;
-    pointerDownTrack.node = hitNode;
-    return;
-  }
-
-  for (let s of [...staticEmitters, ...staticCollectors]) {
-    if (Math.hypot(s.x - x, s.y - y) < s.radius + 30) return;
-  }
-
-  let newNode = null;
-  if (currentTool === 'gravity') {
-    newNode = { type: 'gravity', x, y, radius: 24, power: 450, influenceR: 320 };
-  } else if (currentTool === 'repulsor') {
-    newNode = { type: 'repulsor', x, y, radius: 24, power: 450, influenceR: 240 };
-  } else if (currentTool === 'lorentz') {
-    newNode = { type: 'lorentz', x, y, radius: 28, power: 3.5, influenceR: 180 };
-  } else if (currentTool === 'dampener') {
-    newNode = { type: 'dampener', x, y, radius: 26, influenceR: 140 };
-  } else if (currentTool === 'booster') {
-    newNode = { type: 'booster', x, y, radius: 22, angle: 0, influenceR: 100 };
-  } else if (currentTool === 'collider') {
-    newNode = { type: 'collider', x, y, radius: 34, contained: [] };
-  }
-
-  if (newNode) {
-    playerNodes.push(newNode);
-    sound.playPlace();
-  }
-});
-
-window.addEventListener('pointerup', (e) => {
-  if (draggedNode && pointerDownTrack.node === draggedNode) {
-    const rect = canvas.getBoundingClientRect();
-    const curX = e.clientX - rect.left;
-    const curY = e.clientY - rect.top;
-    const moveDist = Math.hypot(curX - pointerDownTrack.x, curY - pointerDownTrack.y);
-    const duration = performance.now() - pointerDownTrack.time;
-
-    // Detect quick tap / click without drag (< 6px movement)
-    if (moveDist < 6 && duration < 400) {
-      if (draggedNode.type === 'booster') {
-        draggedNode.angle = ((draggedNode.angle || 0) + Math.PI / 4) % (Math.PI * 2);
-        sound.playTone(440, 0.08, 'triangle', 0.06);
-      } else if (draggedNode.power !== undefined) {
-        if (draggedNode.type === 'lorentz') {
-          draggedNode.power = (draggedNode.power >= 6.0) ? 1.5 : (draggedNode.power + 1.5);
-          sound.playTone(350 + draggedNode.power * 50, 0.08, 'sine', 0.05);
-        } else {
-          draggedNode.power = (draggedNode.power >= 700) ? 200 : (draggedNode.power + 250);
-          sound.playTone(300 + draggedNode.power * 0.4, 0.08, 'sine', 0.05);
-        }
-      }
-    }
-  }
+canvas.addEventListener('pointerup', () => {
   draggedNode = null;
 });
 
-viewport.addEventListener('wheel', (e) => {
+canvas.addEventListener('pointerleave', () => {
+  mousePos.inside = false;
+  draggedNode = null;
+});
+
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Mousewheel adjusts node power/angle
+canvas.addEventListener('wheel', (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  const hit = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 15);
-  if (hit) {
-    e.preventDefault();
-    if (hit.power !== undefined) {
-      if (hit.type === 'lorentz') {
-        hit.power = Math.max(0.5, Math.min(8.0, hit.power + (e.deltaY < 0 ? 0.5 : -0.5)));
-        sound.playTone(350 + hit.power * 40, 0.04, 'sine', 0.03);
-      } else {
-        hit.power = Math.max(50, Math.min(850, hit.power + (e.deltaY < 0 ? 25 : -25)));
-        sound.playTone(280 + hit.power * 0.4, 0.04, 'sine', 0.03);
-      }
-    } else if (hit.type === 'booster') {
-      hit.angle = ((hit.angle || 0) + (e.deltaY < 0 ? Math.PI / 8 : -Math.PI / 8)) % (Math.PI * 2);
-      sound.playTone(420, 0.04, 'triangle', 0.04);
-    }
+
+  const target = playerNodes.find(n => Math.hypot(n.x - x, n.y - y) < n.radius + 12);
+  if (!target) return;
+  e.preventDefault();
+
+  const delta = Math.sign(e.deltaY);
+  if (target.type === 'gravity' || target.type === 'repulsor') {
+    target.power = Math.max(150, Math.min(900, (target.power || 450) - delta * 50));
+  } else if (target.type === 'lorentz') {
+    target.power = Math.max(1.0, Math.min(8.0, (target.power || 3.5) - delta * 0.5));
+  } else if (target.type === 'booster') {
+    target.angle = (target.angle || 0) + delta * (Math.PI / 12);
   }
 }, { passive: false });
 
-viewport.addEventListener('contextmenu', e => e.preventDefault());
+function placeNode(type, x, y) {
+  let node = { x, y, type };
+  if (type === 'gravity') {
+    node.radius = 24;
+    node.power = 450;
+    node.influenceR = 320;
+  } else if (type === 'repulsor') {
+    node.radius = 24;
+    node.power = 450;
+    node.influenceR = 240;
+  } else if (type === 'lorentz') {
+    node.radius = 28;
+    node.power = 3.5;
+    node.influenceR = 180;
+  } else if (type === 'dampener') {
+    node.radius = 26;
+    node.influenceR = 140;
+  } else if (type === 'booster') {
+    node.radius = 22;
+    node.angle = 0;
+    node.influenceR = 100;
+  } else if (type === 'collider') {
+    node.radius = 34;
+    node.contained = [];
+  }
 
-// Toolbar Buttons
+  playerNodes.push(node);
+  sound.playPlace();
+  updatePowerGrid();
+}
+
+function demolishAt(x, y) {
+  const idx = playerNodes.findIndex(n => Math.hypot(n.x - x, n.y - y) < n.radius + 8);
+  if (idx !== -1) {
+    playerNodes.splice(idx, 1);
+    sound.playDelete();
+    updatePowerGrid();
+  }
+}
+
+// UI Setup & Buttons
 document.querySelectorAll('.tool-item[data-tool]').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tool-item[data-tool]').forEach(b => b.classList.remove('active'));
@@ -1460,10 +1818,10 @@ document.querySelectorAll('.tool-item[data-tool]').forEach(btn => {
   });
 });
 
-// Level Navigation
-document.querySelectorAll('.level-pill').forEach(pill => {
+document.querySelectorAll('.level-pill[data-lvl]').forEach(pill => {
   pill.addEventListener('click', () => {
-    loadLevel(parseInt(pill.dataset.lvl));
+    const lvl = parseInt(pill.dataset.lvl);
+    loadLevel(lvl);
   });
 });
 
@@ -1480,19 +1838,18 @@ document.getElementById('btn-mode-sandbox').addEventListener('click', () => {
   document.getElementById('btn-mode-sandbox').classList.add('active');
   document.getElementById('btn-mode-campaign').classList.remove('active');
   document.getElementById('level-pills').style.display = 'none';
-  loadLevel(1);
+  loadLevel(currentLevel);
 });
 
-// Header Actions
-document.getElementById('btn-toggle-vectors').addEventListener('click', function() {
+document.getElementById('btn-toggle-vectors').addEventListener('click', (e) => {
   showVectors = !showVectors;
-  this.classList.toggle('active', showVectors);
+  e.currentTarget.classList.toggle('active', showVectors);
 });
 
-document.getElementById('btn-toggle-sound').addEventListener('click', function() {
+document.getElementById('btn-toggle-sound').addEventListener('click', (e) => {
   sound.init();
-  const unmuted = sound.toggle();
-  document.getElementById('sound-icon').textContent = unmuted ? '🔊 声音' : '🔇 静音';
+  const on = sound.toggle();
+  document.getElementById('sound-icon').textContent = on ? '🔊 声音' : '🔈 静音';
 });
 
 document.getElementById('btn-reset').addEventListener('click', () => {
@@ -1503,28 +1860,34 @@ document.getElementById('btn-help').addEventListener('click', () => {
   document.getElementById('help-box').classList.toggle('show');
 });
 
-// Sharing & URL Hash
-document.getElementById('btn-share').addEventListener('click', () => {
-  const exportData = {
+// Sharing & Hash Serialization
+function exportToHash() {
+  const payload = {
     lvl: currentLevel,
     mode: currentMode,
-    nodes: playerNodes.map(n => ({ type: n.type, x: Math.round(n.x), y: Math.round(n.y), power: n.power, angle: n.angle }))
+    nodes: playerNodes.map(n => ({
+      type: n.type,
+      x: Math.round(n.x),
+      y: Math.round(n.y),
+      power: n.power,
+      angle: n.angle
+    }))
   };
-  const b64 = btoa(JSON.stringify(exportData));
-  const shareUrl = `${window.location.origin}${window.location.pathname}#setup=${b64}`;
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(shareUrl).then(() => showToastMessage('已复制分享链接至剪贴板'));
-  } else {
-    showToastMessage('已复制分享链接至剪贴板');
-  }
-});
+  const str = btoa(JSON.stringify(payload));
+  window.location.hash = `setup=${str}`;
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    showToastMessage('已复制分享链接至剪贴板！');
+  }).catch(() => {
+    showToastMessage('链接已生成至地址栏！');
+  });
+}
+document.getElementById('btn-share').addEventListener('click', exportToHash);
 
 function showToastMessage(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
 function loadFromHash() {

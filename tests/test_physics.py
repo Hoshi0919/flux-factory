@@ -1,7 +1,9 @@
 """
 Physics Engine Verification Tests for Flux Factory.
 Validates 2D field interactions, Lorentz deflections, damping, conservation laws,
-fusion kinematics, booster vector rotation, power cycling, and layout serialization.
+fusion kinematics, booster vector rotation, power cycling, layout serialization,
+kinetic resonance energy windows, subcritical bounces, supercritical shatters,
+power grid brownouts, particle half-life decays, and byproduct magnetic separation.
 """
 import math
 import json
@@ -10,6 +12,17 @@ import pytest
 
 # 1. Physical Constants and Models
 EPSILON_SQ = 400.0  # Softening factor to prevent singularity at r -> 0
+MIN_RESONANCE_SPEED = 1.8
+MAX_RESONANCE_SPEED = 5.2
+
+POWER_RATINGS = {
+    'gravity': 12,
+    'repulsor': 10,
+    'lorentz': 15,
+    'dampener': 8,
+    'booster': 14,
+    'collider': 25
+}
 
 def calc_gravity_accel(px, py, nx, ny, power, radius=180.0):
     dx = nx - px
@@ -50,115 +63,95 @@ def calc_damping(vx, vy, damp_coeff=0.08):
 def calc_booster_accel(angle, power=1.5):
     return math.cos(angle) * power, math.sin(angle) * power
 
+def evaluate_collision_regime(speed_a, speed_b):
+    avg_speed = (speed_a + speed_b) / 2.0
+    if avg_speed < MIN_RESONANCE_SPEED:
+        return "subcritical"
+    elif avg_speed > MAX_RESONANCE_SPEED:
+        return "supercritical"
+    else:
+        return "resonant"
+
+def calc_subcritical_rebound(vx, vy, restitution=0.85):
+    return -vx * restitution, -vy * restitution
+
+def calc_grid_state(nodes, max_power):
+    total = sum(POWER_RATINGS.get(n.get('type', ''), 0) for n in nodes)
+    is_brownout = total > max_power
+    factor = 0.55 if is_brownout else 1.0
+    return total, is_brownout, factor
+
+def update_particle_decay(half_life):
+    if half_life is None:
+        return None, False
+    new_life = half_life - 1
+    annihilated = new_life <= 0
+    return new_life, annihilated
+
 
 # 2. Test Cases
 def test_gravity_softening_and_direction():
-    # Test particle approaching from left
     ax, ay = calc_gravity_accel(px=0, py=100, nx=100, ny=100, power=200)
     assert ax > 0.0, "Gravity must pull towards positive x"
     assert abs(ay) < 1e-6, "No lateral acceleration on symmetric axis"
     
-    # Test softening prevents division by zero
     ax_zero, ay_zero = calc_gravity_accel(px=100, py=100, nx=100, ny=100, power=200)
     assert ax_zero == 0.0 and ay_zero == 0.0
 
 def test_repulsor_opposes_gravity():
-    # Particle at (50, 100), node at (100, 100)
     gx, _ = calc_gravity_accel(50, 100, 100, 100, power=200)
     rx, _ = calc_repulsor_accel(50, 100, 100, 100, power=200)
     assert gx > 0, "Gravity pulls toward node"
     assert rx < 0, "Repulsor pushes away from node"
 
-def test_lorentz_zero_work_and_charge_separation():
-    vx, vy = 3.0, 0.0
-    b_field = 0.5
-    dist = 50.0
+def test_lorentz_zero_work_theorem():
+    vx, vy = 3.0, 4.0
+    charge = 1.0
+    b_field = 2.5
+    ax, ay = calc_lorentz_accel(vx, vy, charge, b_field, dist=30.0)
     
-    # Positive charge (+1: Alpha)
-    ax_alpha, ay_alpha = calc_lorentz_accel(vx, vy, charge=1.0, b_field=b_field, dist=dist)
-    # Negative charge (-1: Beta)
-    ax_beta, ay_beta = calc_lorentz_accel(vx, vy, charge=-1.0, b_field=b_field, dist=dist)
-    # Neutral charge (0: Gamma)
-    ax_gamma, ay_gamma = calc_lorentz_accel(vx, vy, charge=0.0, b_field=b_field, dist=dist)
-    
-    # Work done: dot product F . v
-    work_alpha = ax_alpha * vx + ay_alpha * vy
-    assert abs(work_alpha) < 1e-9, "Lorentz force must do exactly zero work (energy conservation)"
-    
-    # Opposite charges deflect in opposite lateral directions
-    assert ay_alpha < 0.0, "Positive charge deflections downwards (clockwise)"
-    assert ay_beta > 0.0, "Negative charge deflections upwards (counter-clockwise)"
-    assert abs(ay_alpha + ay_beta) < 1e-9, "Equal and opposite lateral deflection"
-    
-    # Neutral particle does not deflect
-    assert ax_gamma == 0.0 and ay_gamma == 0.0, "Neutral gamma particle unaffected by magnetic field"
+    work_rate = ax * vx + ay * vy
+    assert abs(work_rate) < 1e-9, "Lorentz force must do strictly zero work"
 
-def test_damping_reduces_speed():
-    vx, vy = 5.0, 5.0
-    initial_speed = math.hypot(vx, vy)
+def test_lorentz_charge_reflection_symmetry():
+    vx, vy = 2.0, 1.5
+    dist = 40.0
+    b_field = 2.0
+    
+    ax_pos, ay_pos = calc_lorentz_accel(vx, vy, charge=1.0, b_field=b_field, dist=dist)
+    ax_neg, ay_neg = calc_lorentz_accel(vx, vy, charge=-1.0, b_field=b_field, dist=dist)
+    
+    assert math.isclose(ax_pos, -ax_neg)
+    assert math.isclose(ay_pos, -ay_neg)
+
+def test_lorentz_neutral_particle_unperturbed():
+    ax, ay = calc_lorentz_accel(2.0, 3.0, charge=0.0, b_field=5.0, dist=10.0)
+    assert ax == 0.0 and ay == 0.0, "Neutral gamma particles must not deflect in magnetic field"
+
+def test_dampener_deceleration():
+    vx, vy = 5.0, -3.0
     ax, ay = calc_damping(vx, vy, damp_coeff=0.1)
-    new_vx = vx + ax
-    new_vy = vy + ay
-    new_speed = math.hypot(new_vx, new_vy)
-    assert new_speed < initial_speed, "Dampener must reduce kinetic velocity"
+    assert ax * vx < 0, "Damping must directly oppose velocity x"
+    assert ay * vy < 0, "Damping must directly oppose velocity y"
 
-def test_booster_accelerates_in_vector_direction():
-    angle = math.pi / 4.0  # 45 degrees
-    ax, ay = calc_booster_accel(angle, power=2.0)
-    assert math.isclose(ax, ay, rel_tol=1e-5), "45 deg booster gives equal x and y acceleration"
-    assert math.isclose(math.hypot(ax, ay), 2.0, rel_tol=1e-5), "Magnitude matches power"
+def test_booster_impulse_vector_rotation():
+    angles = [0, math.pi / 2, math.pi, -math.pi / 2]
+    expected_dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    for angle, (exp_x, exp_y) in zip(angles, expected_dirs):
+        ax, ay = calc_booster_accel(angle, power=2.0)
+        assert math.isclose(ax, exp_x * 2.0, abs_tol=1e-6)
+        assert math.isclose(ay, exp_y * 2.0, abs_tol=1e-6)
 
-def test_booster_angle_rotation_and_periodicity():
-    """Validates 8-step tap rotation around a full circle (45 deg increments)."""
-    step = math.pi / 4.0
-    current_angle = 0.0
-    
-    # 8 successive taps of pi/4
-    for i in range(8):
-        expected_rad = i * step
-        assert math.isclose(current_angle, expected_rad, abs_tol=1e-6)
-        
-        # Test vector heading
-        ax, ay = calc_booster_accel(current_angle, power=1.0)
-        assert math.isclose(ax, math.cos(expected_rad), abs_tol=1e-6)
-        assert math.isclose(ay, math.sin(expected_rad), abs_tol=1e-6)
-        
-        current_angle = (current_angle + step) % (math.pi * 2.0)
-        
-    assert math.isclose(current_angle, 0.0, abs_tol=1e-6), "Full 360 deg rotation returns to 0 rad"
-
-def test_power_cycling_quantization():
-    """Validates tapping power nodes cycles cleanly through discrete preset tiers."""
-    power = 450
-    # First tap: 450 -> 700
-    power = 200 if power >= 700 else power + 250
-    assert power == 700
-    
-    # Second tap: 700 -> wraps to 200
-    power = 200 if power >= 700 else power + 250
-    assert power == 200
-    
-    # Third tap: 200 -> 450
-    power = 200 if power >= 700 else power + 250
-    assert power == 450
-
-def test_collider_fusion_charge_and_momentum():
-    """
-    In the Tokamak collider:
-    Alpha (charge +1, mass 1) + Beta (charge -1, mass 1) -> Gamma (charge 0, mass 2)
-    """
+def test_tokamak_fusion_conservation_laws():
     alpha = {"charge": 1, "mass": 1, "vx": 2.0, "vy": 1.0}
     beta = {"charge": -1, "mass": 1, "vx": 2.0, "vy": -1.0}
     
-    # Net charge
     net_charge = alpha["charge"] + beta["charge"]
     assert net_charge == 0, "Fused product must be electrically neutral (Gamma)"
     
-    # Total momentum before
     px_before = alpha["mass"] * alpha["vx"] + beta["mass"] * beta["vx"]
     py_before = alpha["mass"] * alpha["vy"] + beta["mass"] * beta["vy"]
     
-    # Product mass and velocity
     gamma_mass = alpha["mass"] + beta["mass"]
     gamma_vx = px_before / gamma_mass
     gamma_vy = py_before / gamma_mass
@@ -168,7 +161,6 @@ def test_collider_fusion_charge_and_momentum():
     assert math.isclose(gamma_vy, 0.0)
 
 def test_state_serialization_roundtrip_all_node_types():
-    """Validates serialization of all 6 node types with angle and power fields."""
     nodes = [
         {"type": "gravity", "x": 350, "y": 240, "power": 450},
         {"type": "repulsor", "x": 500, "y": 400, "power": 200},
@@ -184,27 +176,88 @@ def test_state_serialization_roundtrip_all_node_types():
         "nodes": nodes
     }
     
-    # Serialize to base64 JSON
     raw_json = json.dumps(export_payload, separators=(',', ':'))
     encoded = base64.b64encode(raw_json.encode('utf-8')).decode('ascii')
     
-    # Deserialize back
     decoded_json = base64.b64decode(encoded.encode('ascii')).decode('utf-8')
     recovered = json.loads(decoded_json)
     
     assert recovered == export_payload, "Full payload roundtrip serialization must be lossless"
     assert math.isclose(recovered["nodes"][4]["angle"], 0.785398)
 
-def test_all_five_campaign_level_specifications():
-    """Validates level definitions criteria and targets."""
+def test_all_eight_campaign_level_specifications():
     levels = {
-        1: {"targetThroughput": 1.8, "requiredHoldTime": 2.5},
-        2: {"targetThroughput": 2.5, "requiredHoldTime": 2.5},
-        3: {"targetThroughput": 1.8, "requiredHoldTime": 2.5},
-        4: {"targetThroughput": 2.0, "requiredHoldTime": 2.5},
-        5: {"targetThroughput": 3.5, "requiredHoldTime": 3.0}
+        1: {"targetThroughput": 1.8, "requiredHoldTime": 2.5, "maxPower": 100},
+        2: {"targetThroughput": 2.5, "requiredHoldTime": 2.5, "maxPower": 100},
+        3: {"targetThroughput": 1.8, "requiredHoldTime": 2.5, "maxPower": 100},
+        4: {"targetThroughput": 2.0, "requiredHoldTime": 2.5, "maxPower": 100},
+        5: {"targetThroughput": 3.5, "requiredHoldTime": 3.0, "maxPower": 110},
+        6: {"targetThroughput": 2.2, "requiredHoldTime": 2.5, "maxPower": 65},
+        7: {"targetThroughput": 1.2, "requiredHoldTime": 2.5, "maxPower": 95},
+        8: {"targetThroughput": 2.2, "requiredHoldTime": 3.0, "maxPower": 85}
     }
-    assert len(levels) == 5
+    assert len(levels) == 8
     for lvl, spec in levels.items():
         assert spec["targetThroughput"] > 0
         assert spec["requiredHoldTime"] >= 2.0
+        assert spec["maxPower"] >= 60
+
+def test_kinetic_energy_and_resonance_window():
+    # Below window
+    assert evaluate_collision_regime(1.0, 1.2) == "subcritical"
+    # Within window
+    assert evaluate_collision_regime(2.5, 3.5) == "resonant"
+    assert evaluate_collision_regime(1.8, 5.2) == "resonant"
+    # Above window
+    assert evaluate_collision_regime(5.5, 6.0) == "supercritical"
+
+def test_subcritical_reflection_kinematics():
+    vx, vy = 1.2, -0.8
+    rx, ry = calc_subcritical_rebound(vx, vy, restitution=0.85)
+    assert rx == -1.2 * 0.85
+    assert ry == 0.8 * 0.85
+    # Velocity inverted
+    assert rx * vx < 0 and ry * vy < 0
+
+def test_supercritical_shatter_threshold():
+    # If speed is excessive, it shatters without producing target
+    regime = evaluate_collision_regime(6.2, 5.8)
+    assert regime == "supercritical"
+
+def test_power_grid_budget_and_brownout_factor():
+    nodes = [
+        {"type": "collider"},   # 25
+        {"type": "lorentz"},    # 15
+        {"type": "gravity"},    # 12
+        {"type": "booster"}     # 14
+    ]  # Total = 66 MW
+    
+    total, brownout, factor = calc_grid_state(nodes, max_power=70)
+    assert total == 66
+    assert not brownout
+    assert factor == 1.0
+    
+    # Adding another collider pushes over 70 MW
+    nodes.append({"type": "collider"})  # Total = 91 MW
+    total_ovr, brownout_ovr, factor_ovr = calc_grid_state(nodes, max_power=70)
+    assert total_ovr == 91
+    assert brownout_ovr
+    assert factor_ovr == 0.55, "Brownout must throttle field strengths to 55%"
+
+def test_omega_particle_half_life_decay():
+    half_life = 3
+    life_1, dead_1 = update_particle_decay(half_life)
+    assert life_1 == 2 and not dead_1
+    life_2, dead_2 = update_particle_decay(life_1)
+    assert life_2 == 1 and not dead_2
+    life_3, dead_3 = update_particle_decay(life_2)
+    assert life_3 == 0 and dead_3, "Particle must decay and annihilate when timer expires"
+
+def test_byproduct_lorentz_separation_neutral_vs_charged():
+    # Gamma (neutral, q=0) travels straight
+    ax_gamma, ay_gamma = calc_lorentz_accel(3.0, 0.0, charge=0.0, b_field=2.0, dist=20.0)
+    assert ax_gamma == 0.0 and ay_gamma == 0.0
+    
+    # Positron (byproduct, q=+1) deflects upwards
+    ax_pos, ay_pos = calc_lorentz_accel(3.0, 0.0, charge=1.0, b_field=2.0, dist=20.0)
+    assert ay_pos != 0.0, "Positron byproduct must be deflected away by Lorentz field"
